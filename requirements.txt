@@ -1,0 +1,14 @@
+litellm
+fire
+datasets
+tqdm
+boto3
+evalplus @ git+https://github.com/evalplus/evalplus.git@master
+termcolor
+dotenv
+vllm
+scikit-learn
+bandit
+tenacity
+sandbox-fusion
+rich
