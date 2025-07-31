@@ -62,7 +62,7 @@ def run_batched_inference(
         "parallel": parallel,
         "messages": batched_rows,
         "max_tokens": max_new_tokens,
-        "temperature": temprature,
+        "temperature": temperature,
         "max_tokens": max_new_tokens,
         **kwargs,
     }
