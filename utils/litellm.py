@@ -49,7 +49,7 @@ def run_batched_inference(
     batched_rows: List,  # each row includes at least "messages"
     row_transform: Callable[[Dict], Dict] = lambda x: x,
     max_new_tokens: int = None,
-    temprature: float = None,
+    temperature: float = None,
     model: str = "bedrock/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     parallel: int = 12,
     **kwargs,
