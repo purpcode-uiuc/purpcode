@@ -63,7 +63,6 @@ def run_batched_inference(
         "messages": batched_rows,
         "max_tokens": max_new_tokens,
         "temperature": temperature,
-        "max_tokens": max_new_tokens,
         **kwargs,
     }
     if "thinking" in kwargs:
