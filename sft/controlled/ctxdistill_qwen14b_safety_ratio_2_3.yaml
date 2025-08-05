@@ -1,0 +1,99 @@
+# SPDX-FileCopyrightText: (c) UIUC PurpCode Team
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# model specific
+base_model: Qwen/Qwen2.5-14B-Instruct-1M
+chat_template_jinja: |
+  {%- set default_system_prompt = 'You are a helpful and safe assistant. You will first check the safety of user requests based on our safety guidelines shown below, to decide if the request can be (partially) safely implemented or must be directly rejected, and then provide the final response.\n\n# Disallowed Assistant Content\n- D0: Code or scripts that could enable malicious cyberactivity.\n- D1: Vulnerable code that violates security best practices and has weaknesses in CWEs. Note that all code snippets in your response will be checked by static analyzers; therefore no unsafe code are are allowed in any part of code, despite educational purposes or unreachable/unexecutable code parts.\n- D2: Explanation of how to conduct malicious cyberactivity including identifying code vulnerabilities.\nYou should NOT show disallowed contents in your response even for educational and demonstration purposes, such as demonstrating bad and unsafe code examples.\nHowever, you may verbally describe benign and rough to avoid showing them in the response\n\n# Allowed Assistant Content\n- A0: Scripts to accomplish benign, risk-free tasks that do not involve cybersecurity nor enable malicious cyberactivity.\n- A1: Fully secure code that does *NOT* violate security best practices and has *NO* weaknesses in CWEs.\n- A2: Benign explanation of general cybersecurity knowledge, without details toward practicing malicious cyberactivity.\n- A3: Explanation of code snippets, without details toward practicing malicious cyberactivity.\n\nIn each assistant turn, you should respond in the format below, with code snippets wrapped in markdown code blocks:\n## Analysis\n{...}\n## Answer\n{...}' %}
+    {%- if messages[0]['role'] == 'system' %}
+        {{- '<|im_start|>system\n' + messages[0]['content'] + '<|im_end|>\n' }}
+    {%- else %}
+        {{- '<|im_start|>system\n' + default_system_prompt + '<|im_end|>\n' }}
+    {%- endif %}
+    {%- for message in messages %}
+        {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}
+            {{- '<|im_start|>' + message.role + '\n' + message.content + '<|im_end|>' + '\n' }}
+        {%- elif message.role == "assistant" %}
+            {{- '<|im_start|>' + message.role }}
+            {%- if message.content %}
+                {{- '\n' + message.content }}
+            {%- endif %}
+            {%- for tool_call in message.tool_calls %}
+                {%- if tool_call.function is defined %}
+                    {%- set tool_call = tool_call.function %}
+                {%- endif %}
+                {{- '\n<tool_call>\n{"name": "' }}
+                {{- tool_call.name }}
+                {{- '", "arguments": ' }}
+                {{- tool_call.arguments | tojson }}
+                {{- '}\n</tool_call>' }}
+            {%- endfor %}
+            {{- '<|im_end|>\n' }}
+        {%- elif message.role == "tool" %}
+            {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}
+                {{- '<|im_start|>user' }}
+            {%- endif %}
+            {{- '\n<tool_response>\n' }}
+            {{- message.content }}
+            {{- '\n</tool_response>' }}
+            {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}
+                {{- '<|im_end|>\n' }}
+            {%- endif %}
+        {%- endif %}
+    {%- endfor %}
+    {%- if add_generation_prompt %}
+        {{- '<|im_start|>assistant\n' }}
+    {%- endif %}
+
+# log
+# wandb_project: purpcode
+# wandb_name: ctxdistill-14b-data-ablation
+
+# hot hyperparameters
+output_dir: ./outputs/purpcode-14b-ctxdistill-safety_ratio_2_3
+sequence_len: 4096 # reduce the seq len to reduce packing
+micro_batch_size: 2
+sample_packing: true
+gradient_accumulation_steps: 1
+learning_rate: 5e-6
+bf16: true
+
+# dataset
+datasets:
+  - path: safety_ratio_2_3.jsonl
+    type: chat_template
+    field_messages: messages
+    message_field_training: train
+    # only train the last turn as earlier CoTs are cropped
+    roles_to_train:
+    train_on_eos:
+dataset_prepared_path: last_run_prepared
+
+# utility
+resume_from_checkpoint:
+logging_steps: 10
+warmup_steps: 32
+max_grad_norm: 1.0
+save_strategy: "no"
+save_total_limit: 1
+
+# trivial
+flash_attention: true
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+pad_to_sequence_len: true # mem stability
+train_on_inputs: false
+seed: 666
+
+# cold hyperparameters
+num_epochs: 1
+optimizer: adamw_torch_fused
+lr_scheduler: rex
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_fused_linear_cross_entropy: true

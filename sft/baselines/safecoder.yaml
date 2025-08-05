@@ -1,0 +1,48 @@
+
+# SPDX-FileCopyrightText: (c) UIUC PurpCode Team
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# To reproduce the model training:
+# refer to https://github.com/eth-sri/SafeCoder
+# add 'Qwen/Qwen2.5-14B-Instruct-1M' as `qwen-14b` to the model list in 'safecoder/constants.py'
+# training command:
+# python train.py --pretrain_name qwen-14b --output_name qwen-14b-safecoder --datasets lmsys sec-desc sec-new-desc
+
+# model specific
+base_model: Qwen/Qwen2.5-14B-Instruct-1M
+
+# training parameters
+training:
+  epochs: 2
+  batch_size: 1
+  grad_accumulation_steps: 16
+  max_tokens: 1024
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  adam_epsilon: 1e-8
+  warmup_steps: 0
+  max_grad_norm: 1.0
+  dropout: 0.1
+  kl_loss_weight: 0             # Will be divided by 1000 internally
+  exclude_neg: false
+  no_weights: false
+
+sampling:
+  sampling_size: 40             # oversampling sec-desc and sec-new-desc to address data imbalance
+
+dataset:
+  lmsys:                       # 18K high-quality samples from LMSYS-Chat-1M
+  sec-desc:                    # 803 samples from SVEN (prior SafeCoder work)
+  sec-new-desc:                # 465 samples newly collected in SafeCoder
+
+training_logs:
+  num_samples: 19916
+  num_epochs: 2
+  batch_size: 1
+  total_batch_size: 16        # With gradient accumulation
+  grad_accumulation_steps: 16
+  total_optimization_steps: 2488
+  num_val_samples: 2039
+  num_parameters: 14765947904
+  num_trainable_parameters: 14765947904

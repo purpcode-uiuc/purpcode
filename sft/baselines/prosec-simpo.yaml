@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: (c) UIUC PurpCode Team
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# To run reproduce the model training:
+# Install axolotl: https://docs.axolotl.ai/
+# axolotl train sft/baselines/prosec-simpo.yaml --deepspeed deepspeed_configs/zero3.json
+
+# model specific
+base_model: Qwen/Qwen2.5-14B-Instruct-1M
+chat_template: tokenizer_default
+
+# log
+# wandb_project: purpcode
+# wandb_name: baseline-prosec
+
+# hot hyperparameters (for H200)
+output_dir: ./outputs/Qwen2.5-14B-Instruct-1M-ProSec-Final
+sequence_len: 4096
+micro_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 5e-6
+bf16: true
+
+rl: simpo
+rl_beta: 1.5 # following Table 6
+cpo_alpha: 1.0  # default in CPOTrainer
+simpo_gamma: 0.5  # default in CPOTrainer
+
+# dataset
+datasets:
+  - path: prosec/qwen2.5-top2-cds-0.8-kendall-on-neg_if-corr-max-2
+    split: train
+    type:
+      field_prompt: "original_instruction"
+      field_chosen: "fixed_code"
+      field_rejected: "original_code"
+      prompt_format: "{prompt}"
+      chosen_format: "{chosen}"
+      rejected_format: "{rejected}"
+
+dataset_prepared_path: last_run_prepared
+
+# utility
+resume_from_checkpoint:
+logging_steps: 10
+warmup_steps: 32
+max_grad_norm: 1.0
+save_strategy: "no"
+save_total_limit: 1
+
+# trivial
+flash_attention: true
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+pad_to_sequence_len: true # mem stability
+train_on_inputs: false
+seed: 666
+
+# cold hyperparameters
+num_epochs: 1
+optimizer: adamw_torch_fused
+lr_scheduler: rex
+
+plugins:
+  - axolotl.integrations.liger.LigerPlugin
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_fused_linear_cross_entropy: true
