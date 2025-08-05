@@ -6,7 +6,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-# Example: python script/push_model.py --path [model_path]
+# Example: python script/push_model_hub.py --path [model_path]
 def push_model(path: str, model_name: str = None):
     candidates = [f for f in path.split("/")[-2:] if "checkpoint" not in f]
     model_name = model_name or candidates[-1]
