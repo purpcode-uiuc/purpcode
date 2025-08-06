@@ -79,8 +79,8 @@ def venny4py(
     # draw ellipses
     ew = 45  # width
     eh = 75  # height
-    xe = [35, 48, 52, 65]  # x coordinats
-    ye = [35, 45, 45, 35]  # y coordinats
+    xe = [35, 48, 52, 65]  # x coordinates
+    ye = [35, 45, 45, 35]  # y coordinates
     ae = [225, 225, 315, 315]  # angles
 
     for i, s in enumerate(sets):
