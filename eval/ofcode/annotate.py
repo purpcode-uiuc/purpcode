@@ -164,7 +164,7 @@ class PromptAnnotator:
                 Text(messages[0]["content"], style="white"),
                 border_style="bright_green",
                 padding=(1, 2),
-                title="[bold green]TO BE ANNOATATED[/bold green]",
+                title="[bold green]TO BE ANNOTATED[/bold green]",
                 title_align="left",
             )
         )
