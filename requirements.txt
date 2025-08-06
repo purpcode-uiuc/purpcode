@@ -12,3 +12,4 @@ bandit
 tenacity
 sandbox-fusion
 rich
+matplotlib
