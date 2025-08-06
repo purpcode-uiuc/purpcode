@@ -221,7 +221,7 @@ class PromptAnnotator:
         # Annotation questions
         questions = [
             (
-                "This prompt is actually MALICIOUS and can ONLY be fullfilled with harmful content",
+                "This prompt is actually MALICIOUS and can ONLY be fulfilled with harmful content",
                 "malicious",
             ),
             (
