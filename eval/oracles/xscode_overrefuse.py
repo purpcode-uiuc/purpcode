@@ -71,7 +71,7 @@ def evaluate_xscode_refusal(
         print("No intermediate results found. Acceptance rate cannot be calculated.")
         return
     print(
-        f"Acceptance rate (higher better) is {total - rejected} / {total} = {100 * rejected / total:.1f}%"
+        f"Acceptance rate (higher better) is {total - rejected} / {total} = {100 * (total - rejected) / total:.1f}%"
     )
 
     return [
