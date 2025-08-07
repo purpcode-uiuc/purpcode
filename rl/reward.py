@@ -4,6 +4,7 @@
 
 import asyncio
 import json
+import os
 import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -248,9 +249,7 @@ def compute_score(data_source, response, ground_truth, extra_info):
         extra_info = extra_info.item()
 
     def _return_score(score, reward_log, marker="-", max_chars=None):
-        reward_log = _wrap_log(
-            score, "\n".join(reward_log), marker=marker, max_chars=max_chars
-        )
+        reward_log = _wrap_log(score, "\n".join(reward_log), max_chars=max_chars)
         reward_log += f"\n{data_source = } :: computed in {time.time() - t_start}s"
         return score
 
