@@ -253,7 +253,7 @@ def datagen_for_one_cwe(cwe_id, markdown, depth, remote_api=False):
         }
     )
 
-    for i in range(depth - 1):
+    for _ in range(depth - 1):
         messages.append({"role": "user", "content": generate_followup_prompt()})
         choice = client.chat.completions.create(
             messages=messages, **common_args
