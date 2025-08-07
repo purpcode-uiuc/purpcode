@@ -278,9 +278,8 @@ def main(
     output_path="outputs/rule2code/cwe2code-raw.jsonl",
     depth=1,
     remote_api=False,
-    xml_path: str = "cwec_v4.16.xml",
 ):
-    collection = create_cwe_information(xml_path)
+    collection = create_cwe_information()
     # each line: cwe_id, conversation
 
     finished = set()
