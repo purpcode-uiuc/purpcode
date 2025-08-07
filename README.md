@@ -18,9 +18,9 @@ PurpCode includes two alignment stages:
 - The ☝️*first* cybersafe reasoning recipe in open source
 - Great cybersafety and utility preservation, winning the 🥇*1st place* in [Amazon Nova AI Challenge](https://www.amazon.science/nova-ai-challenge/pushing-the-boundaries-of-secure-ai-winners-of-the-amazon-nova-ai-challenge)
 - Fully 👐open-sourced, from models, data, to training/evaluation code and data synthesizers
-- 🏎️ Fast RL with *Single-Step Dynamic Sampling* -- 12% faster, 15% less sample wasting, and better results than [DAPO](https://arxiv.org/abs/2503.14476)
-- 📚 Supporting 13 evals, 90 CWEs, and 4 training objectives & rewards, covering cybersafety, utility, and overrefusal
-- 🙅‍♂️ XSCode -- our home-made evaluator and the *first* benchmark for checking overrefusal in secure code generation
+- 🏎️Fast RL with *Single-Step Dynamic Sampling* -- 12% faster, 15% less sample wasting, and better results than [DAPO](https://arxiv.org/abs/2503.14476)
+- 📚Supporting 13 evals, 90 CWEs, and 4 training objectives & rewards, covering cybersafety, utility, and overrefusal
+- 🙅‍♂️XSCode -- our home-made evaluator and the *first* benchmark for checking overrefusal in secure code generation
 - ... and more details in the [paper](https://arxiv.org/abs/2507.19060)!
 
 ## Initial Setup
