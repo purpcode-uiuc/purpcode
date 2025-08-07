@@ -43,7 +43,9 @@ fi
 wget https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.21.0/codeql-bundle-linux64.tar.gz
 tar -xf codeql-bundle-linux64.tar.gz -C ${HOME}
 export PATH=$PATH:${HOME}/codeql/
-sed -i '1i export PATH=$PATH:${HOME}/codeql/' ${SHELL_RC}
+if ! grep -q 'export PATH=$PATH:${HOME}/codeql/' "${SHELL_RC}"; then
+  sed -i '1i export PATH=$PATH:${HOME}/codeql/' "${SHELL_RC}"
+fi
 
 tmux detach
 # --------------------------
