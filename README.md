@@ -179,11 +179,9 @@ Notes:
 
 ```bash
 # Download and setup PurpleLlama repository for CyberSecEval evaluation
-cd .. # assuming you are in purpcode directory
-git clone https://github.com/meta-llama/PurpleLlama.git
-cd PurpleLlama
-pip install -r CybersecurityBenchmarks/requirements.txt
-cd ../purpcode
+# Note: Run from purpcode directory, PurpleLlama will be cloned as a sibling directory
+git clone https://github.com/meta-llama/PurpleLlama.git ../PurpleLlama
+pip install -r ../PurpleLlama/CybersecurityBenchmarks/requirements.txt
 
 # Run CyberSecEval SCG evaluation (default setup)
 python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl

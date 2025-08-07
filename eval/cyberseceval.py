@@ -4,6 +4,7 @@
 
 import json
 import os
+import subprocess
 
 from datasets import load_dataset
 
@@ -44,14 +45,11 @@ def evaluate_cyberseceval(generation_path, task, purplellama_path=None):
                 "rule": task_data.get("rule", ""),
                 "repo": task_data.get("repo", ""),
                 "model": model,
-                "original_code": task_data["origin_code"],
             }
             results.append(result)
 
     with open(output_path, "w") as f:
         json.dump(results, f, indent=4)
-
-    import subprocess
 
     original_pythonpath = os.environ.get("PYTHONPATH", "")
     current_dir = os.getcwd()
@@ -61,7 +59,7 @@ def evaluate_cyberseceval(generation_path, task, purplellama_path=None):
     else:
         os.chdir("..")
         os.chdir("PurpleLlama")
-    os.environ["PYTHONPATH"] = original_pythonpath + ":" + os.getcwd()
+    os.environ["PYTHONPATH"] = original_pythonpath + os.pathsep + os.getcwd()
 
     stat_path = output_path.replace(".reformat.json", ".stat.json")
 
@@ -75,6 +73,6 @@ def evaluate_cyberseceval(generation_path, task, purplellama_path=None):
         f"--stat-path={stat_path}",
     ]
 
-    subprocess.run(cmd)
+    subprocess.run(cmd, check=True)
     os.chdir(current_dir)
     os.environ["PYTHONPATH"] = original_pythonpath
