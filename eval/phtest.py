@@ -35,19 +35,20 @@ def evaluate_phtest(
 
         if harmfulness == "harmless":
             harmless_total += 1
-            if is_rejected:
-                harmless_rejected += 1
+            harmless_rejected += int(is_rejected)
         elif harmfulness == "controversial":
             controversial_total += 1
-            if is_rejected:
-                controversial_rejected += 1
+            controversial_rejected += int(is_rejected)
 
+    total_rejected = harmless_rejected + controversial_rejected
+    total_all = harmless_total + controversial_total
+    
     rprint(
-        f"[green]Harmless rejection rate:{harmless_rejected} / {harmless_total} = {100 * harmless_rejected / harmless_total:.1f}%[/green]"
+        f"[green]Harmless rejection rate:{harmless_rejected} / {harmless_total} = {100 * harmless_rejected / harmless_total if harmless_total else 0.0:.1f}%[/green]"
     )
     rprint(
-        f"[green]Controversial rejection rate:{controversial_rejected} / {controversial_total} = {100 * controversial_rejected / controversial_total:.1f}%[/green]"
+        f"[green]Controversial rejection rate:{controversial_rejected} / {controversial_total} = {100 * controversial_rejected / controversial_total if controversial_total else 0.0:.1f}%[/green]"
     )
     rprint(
-        f"[green]Total rejection rate:{harmless_rejected + controversial_rejected} / {harmless_total + controversial_total} = {100 * (harmless_rejected + controversial_rejected) / (harmless_total + controversial_total):.1f}%[/green]"
+        f"[green]Total rejection rate:{total_rejected} / {total_all} = {100 * total_rejected / total_all if total_all else 0.0:.1f}%[/green]"
     )
