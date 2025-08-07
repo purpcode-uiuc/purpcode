@@ -14,6 +14,7 @@ def main(
     model_id: str = None,
     llm_judge: str = DEFAULT_LLM_JUDGE,
     reference_results_path: str = None,
+    purplellama_path: str = None,
     tp: int = 1,
     transform_conversation: str = None,
     oracle: str = None,
@@ -41,6 +42,7 @@ def main(
         oracle=oracle,
         llm_judge=llm_judge,
         reference_results_path=reference_results_path,
+        purplellama_path=purplellama_path,
     )
 
 

@@ -8,7 +8,7 @@ import os
 from datasets import load_dataset
 
 
-def evaluate_cyberseceval(generation_path, task):
+def evaluate_cyberseceval(generation_path, task, purplellama_path=None):
     output_path = os.path.abspath(generation_path.replace(".jsonl", ".reformat.json"))
     task_dataset = load_dataset(task)["test"]
     task_dict = {item["task_id"]: item for item in task_dataset}
@@ -56,8 +56,11 @@ def evaluate_cyberseceval(generation_path, task):
     original_pythonpath = os.environ.get("PYTHONPATH", "")
     current_dir = os.getcwd()
 
-    os.chdir("..")
-    os.chdir("PurpleLlama")
+    if purplellama_path:
+        os.chdir(purplellama_path)
+    else:
+        os.chdir("..")
+        os.chdir("PurpleLlama")
     os.environ["PYTHONPATH"] = original_pythonpath + ":" + os.getcwd()
 
     stat_path = output_path.replace(".reformat.json", ".stat.json")
@@ -74,4 +77,4 @@ def evaluate_cyberseceval(generation_path, task):
 
     subprocess.run(cmd)
     os.chdir(current_dir)
-    os.environ["PYTHONPATH"] = original_pythonpath + ":" + os.getcwd()
+    os.environ["PYTHONPATH"] = original_pythonpath
