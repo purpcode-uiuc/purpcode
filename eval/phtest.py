@@ -42,7 +42,7 @@ def evaluate_phtest(
 
     total_rejected = harmless_rejected + controversial_rejected
     total_all = harmless_total + controversial_total
-    
+
     rprint(
         f"[green]Harmless rejection rate:{harmless_rejected} / {harmless_total} = {100 * harmless_rejected / harmless_total if harmless_total else 0.0:.1f}%[/green]"
     )
