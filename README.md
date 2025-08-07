@@ -1,9 +1,9 @@
 # 🔮 PurpCode: Reasoning for Safer Code Generation
 
-This repository includes the training and evaluation infrastructure for PurpCode. For other resources, please check out:
+This repo includes the training and evaluation infrastructure for PurpCode. For other resources, please check out:
 
 * [📝 Paper](https://arxiv.org/abs/2507.19060) with technical and evaluation details
-* [🤗 HuggingFace](https://github.com/purpcode-uiuc/purpcode) including model checkpoints and training/evaluation datasets
+* [🤗 HuggingFace](https://huggingface.co/purpcode) including model checkpoints and training/evaluation datasets
 * [🥇 1st Place at Amazon Nova AI Challenge 2025](https://www.amazon.science/nova-ai-challenge/pushing-the-boundaries-of-secure-ai-winners-of-the-amazon-nova-ai-challenge)
 
 ## Overview
@@ -47,7 +47,20 @@ Notes:
 ```bibtex
 @article{purpcode,
   title = {PurpCode: Reasoning for Safer Code Generation},
-  author = {Liu, Jiawei and Diwan, Nirav and Wang, Zhe and Zhai, Haoyu and Zhou, Xiaona and Nguyen, Kiet A. and Yu, Tianjiao and Wahed, Muntasir and Deng, Yinlin and Benkraouda, Hadjer and Wei, Yuxiang and Zhang, Lingming and Lourentzou, Ismini and Wang, Gang},
+  author = {Liu, Jiawei and
+            Diwan, Nirav and
+            Wang, Zhe and
+            Zhai, Haoyu and
+            Zhou, Xiaona and
+            Nguyen, Kiet A. and
+            Yu, Tianjiao and
+            Wahed, Muntasir and
+            Deng, Yinlin and
+            Benkraouda, Hadjer and
+            Wei, Yuxiang and
+            Zhang, Lingming and
+            Lourentzou, Ismini and
+            Wang, Gang},
   journal = {arXiv preprint arXiv:2507.19060},
   year = {2025},
 }
