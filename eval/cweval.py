@@ -44,27 +44,13 @@ def evaluate_cweval(generation_path, task, cweval_path=None):
                     break
 
             if assistant_content:
-                code_start = assistant_content.find("```") + 3
-                code_end = assistant_content.find("```", code_start)
-
-                if code_start >= 3 and code_end != -1:
-                    code_block = assistant_content[code_start:code_end].strip()
-                    if code_block.startswith(
-                        (
-                            "c\n",
-                            "cpp\n",
-                            "go\n",
-                            "js\n",
-                            "py\n",
-                            "python\n",
-                            "java\n",
-                        )
-                    ):
-                        code_block = code_block.split("\n", 1)[1]
-                    elif code_block.startswith(
-                        ("c:", "cpp:", "go:", "js:", "py:", "python:", "java:")
-                    ):
-                        code_block = code_block.split("\n", 1)[1]
+                code_blocks = assistant_content.split("```")
+                if len(code_blocks) >= 3:
+                    code_block_with_lang = code_blocks[1]
+                    if "\n" in code_block_with_lang:
+                        code_block = code_block_with_lang.split("\n", 1)[1].strip()
+                    else:
+                        code_block = code_block_with_lang.strip()
 
                     output_path = os.path.join(base_output_dir, file_path)
                     os.makedirs(os.path.dirname(output_path), exist_ok=True)
