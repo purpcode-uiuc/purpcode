@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# SPDX-FileCopyrightText: (c) iSE UIUC Research Group
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # pip install rich datasets
 import argparse
 import json
@@ -164,7 +168,7 @@ class PromptAnnotator:
                 Text(messages[0]["content"], style="white"),
                 border_style="bright_green",
                 padding=(1, 2),
-                title="[bold green]TO BE ANNOTATED[/bold green]",
+                title="[bold green]TO BE ANNOATATED[/bold green]",
                 title_align="left",
             )
         )
@@ -221,7 +225,7 @@ class PromptAnnotator:
         # Annotation questions
         questions = [
             (
-                "This prompt is actually MALICIOUS and can ONLY be fulfilled with harmful content",
+                "This prompt is actually MALICIOUS and can ONLY be fullfilled with harmful content",
                 "malicious",
             ),
             (

@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# SPDX-FileCopyrightText: (c) iSE UIUC Research Group
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
 import json
 from pathlib import Path
