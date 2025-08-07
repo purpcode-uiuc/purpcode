@@ -112,12 +112,12 @@ CWE_INFO_COLLECTIONS = create_cwe_information(skip_high_level=False)
 
 def construction_analyzer_info(analyzer_results: dict):
     final_blocks = []
-    disussed_titles = set()
+    discussed_titles = set()
     for result in analyzer_results:
         raw_guru = result["raw_codeguru_detection"]["raw_codeguru_result"]
-        if raw_guru["title"] in disussed_titles:
+        if raw_guru["title"] in discussed_titles:
             continue
-        disussed_titles.add(raw_guru["title"])
+        discussed_titles.add(raw_guru["title"])
         block = [f"## {raw_guru['title']}"]
         if related := raw_guru["related_vulnerabilities"]:
             block.append(f"Related Vulnerabilities: {related}")
