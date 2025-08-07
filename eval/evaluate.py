@@ -39,6 +39,7 @@ def evaluate_main(
     llm_judge: str = None,
     reference_results_path: str = None,
     purplellama_path: str = None,
+    cweval_path: str = None,
 ):
     if oracle is None:  # Guessing oracle
         print(f"Guessing oracle for task {task}...")
@@ -143,7 +144,9 @@ def evaluate_main(
     elif oracle == "cweval":
         from eval.cweval import evaluate_cweval
 
-        evaluate_cweval(generation_path=generation_path, task=task)
+        evaluate_cweval(
+            generation_path=generation_path, task=task, cweval_path=cweval_path
+        )
     else:
         raise ValueError(f"Unknown oracle: {oracle}")
 
