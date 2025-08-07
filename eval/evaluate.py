@@ -38,6 +38,7 @@ def evaluate_main(
     oracle: str = None,
     llm_judge: str = None,
     reference_results_path: str = None,
+    purplellama_path: str = None,
 ):
     if oracle is None:  # Guessing oracle
         print(f"Guessing oracle for task {task}...")
@@ -89,7 +90,11 @@ def evaluate_main(
     elif oracle == "cyberseceval":
         from eval.cyberseceval import evaluate_cyberseceval
 
-        evaluate_cyberseceval(generation_path=generation_path, task=task)
+        evaluate_cyberseceval(
+            generation_path=generation_path,
+            task=task,
+            purplellama_path=purplellama_path,
+        )
     elif oracle == "codeguru":
         from eval.oracles.secure_code_oracles import evaluate_secure_code_gen
 
