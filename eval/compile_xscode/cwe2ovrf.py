@@ -32,34 +32,19 @@ from eval.generate import (
 
 MAX_NEW_TOKEN_PER_TURN = 1024 * 8
 
-API_MAPPINGS = {
-    "claude-4-sonnet": "bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0",
-    "claude-4-opus": "bedrock/us.anthropic.claude-opus-4-20250514-v1:0",
-    "claude-3.7-opus": "bedrock/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    "claude-3.5-haiku": "bedrock/us.anthropic.claude-3-5-haiku-20241022-v1:0",
-    "claude-3.5-sonnet": "bedrock/us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-}
-
 
 def run_bedrock_from_file(
     input_jsonl_path: str,
     model: str,
-    target_result_path: str,
     bs: int = 64,
     model_id: str = None,
     temperature: float = 0.0,
-) -> str:
+) -> List[Dict[str, str]]:
     dataset = load_dataset("json", data_files=input_jsonl_path, split="train")
     validate_message_fmt(dataset)
     print(f"Loaded {len(dataset)} examples from {input_jsonl_path}")
 
     model_id = model_id or get_model_id(model)
-
-    if os.path.exists(target_result_path):
-        print(
-            f"Result file {target_result_path} already exists. Skipping... (Delete it to regenerate)"
-        )
-        return target_result_path
 
     tokenizer, generation_fn = None, generate_bedrock
     id2messages = {row["task_id"]: row["messages"] for row in dataset}
@@ -69,7 +54,7 @@ def run_bedrock_from_file(
         user_only_tasks[task_id] = messages
 
     assert len(user_only_tasks) > 0, "No tasks to run"
-
+    assistant_responses = []
     for output in run_llm_conversation(
         user_only_tasks,
         generation_fn,
@@ -82,10 +67,9 @@ def run_bedrock_from_file(
         guardrail=False,
         sys_prompt=False,
     ):
-        with open(target_result_path, "a+") as f:
-            f.write(json.dumps(output) + "\n")
+        assistant_responses.append(output)
 
-    return target_result_path
+    return assistant_responses
 
 
 def transform_xml_to_code(root):
@@ -509,22 +493,12 @@ def datagen_for_all_cwes(
         cprint(f"Found existing generation path at {generation_path}", "yellow")
         return generation_path
 
-    run_bedrock_from_file(
+    assistant_responses = run_bedrock_from_file(
         input_jsonl_path=init_filepath,
         model=model,
-        target_result_path=generation_path,
         bs=bs,
         temperature=temperature,
     )
-
-    assistant_responses = []
-    with open(generation_path, "r", encoding="utf-8") as f:
-        for line in f:
-            assistant_responses.append(json.loads(line.strip()))
-
-    # Delete the generation_path if it exists
-    if os.path.exists(generation_path):
-        os.remove(generation_path)
 
     questions = []
     for a in assistant_responses:
@@ -600,7 +574,7 @@ def cwe2ovrf_main(
     gen_model="bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0",
 ):
 
-    init_filepath = f"{output_directory}/{gen_model.split("/")[-1]}.{num_questions_per_gen}.{vuln_rules_type}.init.jsonl"
+    init_filepath = f"{output_directory}/{ (gen_model.split("/"))[-1] }.{num_questions_per_gen}.{vuln_rules_type}.init.jsonl"
 
     collection = create_cwe_information()
     if vuln_rules_type == "codeguru":
