@@ -574,7 +574,7 @@ def cwe2ovrf_main(
     gen_model="bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0",
 ):
 
-    init_filepath = f"{output_directory}/{ (gen_model.split("/"))[-1] }.{num_questions_per_gen}.{vuln_rules_type}.init.jsonl"
+    init_filepath = f"{output_directory}/{gen_model.split('/')[-1]}.{num_questions_per_gen}.{vuln_rules_type}.init.jsonl"
 
     collection = create_cwe_information()
     if vuln_rules_type == "codeguru":
