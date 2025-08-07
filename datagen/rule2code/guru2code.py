@@ -211,7 +211,7 @@ def datagen_for_one_seed(
 
 def main(
     parallel=256,
-    output_path="outputs/rule2code/guru2code-raw.jsonl",
+    output_path="outputs/rule2code/guru2code.jsonl",
     depth=1,
     remote_api=False,
 ):
