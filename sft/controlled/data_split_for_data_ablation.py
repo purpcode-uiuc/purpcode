@@ -19,14 +19,14 @@ safety_data = [
     for r in data
     if r["task_id"].split(":")[0]
     in [
-        "purpcorn/vul2prompt-jailbreaking-oss-11k",
-        "purpcorn/vul2prompt-benign2vul-oss",
-        "purpcorn/mal-event-fitd-multi-turn-oss-2k",
-        "purpcorn/vul2prompt-multi-oss-5k",
-        "purpcorn/mal-event-seed-attack-oss-24k",
-        "purpcorn/mal-event-jailbreak-single-oss-16k",
-        "purpcorn/vul2prompt-general-oss",
-        "purpcorn/vul2prompt-vul2vul-oss",
+        "purpcode/vul2prompt-jailbreaking-oss-11k",
+        "purpcode/vul2prompt-benign2vul-oss-21k",
+        "purpcode/mal-event-fitd-multi-turn-oss-2k",
+        "purpcode/vul2prompt-multi-oss-5k",
+        "purpcode/mal-event-seed-attack-oss-24k",
+        "purpcode/mal-event-jailbreak-single-oss-16k",
+        "purpcode/vul2prompt-general-oss-26k",
+        "purpcode/vul2prompt-vul2vul-oss-21k",
     ]
 ]
 
@@ -35,7 +35,7 @@ utility_data = [
     for r in data
     if r["task_id"].split(":")[0]
     in [
-        "purpcorn/secqa_utility_train",
+        "purpcode/secqa_utility_train",
         "KodCode/KodCode-V1-SFT-R1",
     ]
 ]
