@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# pip install rich datasets
 import argparse
 import json
 import os

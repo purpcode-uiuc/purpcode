@@ -2,11 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-Script to process JSONL files and filter records where malicious, unnatural,
-and too_simple are all "disagree", then display statistics.
-"""
-
 import json
 from collections import Counter
 from pathlib import Path
@@ -20,7 +15,7 @@ def analyze_records(records):
         return None
     print(f"Total records: {len(records)}")
     print(
-        f"{len(set([ record['original_prompt']['additional_context']['cwe_id'] for record in records ]))} unique CWEs"
+        f"{len({record['original_prompt']['additional_context']['cwe_id'] for record in records})} unique CWEs"
     )
 
     # distribution per language
