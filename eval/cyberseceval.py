@@ -15,9 +15,7 @@ def evaluate_cyberseceval(generation_path, task, purplellama_path=None):
     task_dict = {item["task_id"]: item for item in task_dataset}
 
     with open(generation_path, "r") as f:
-        data = []
-        for line in f:
-            data.append(json.loads(line))
+        data = [json.loads(line) for line in f]
 
     results = []
     for idx, item in enumerate(data):

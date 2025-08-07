@@ -187,9 +187,10 @@ pip install -r ../PurpleLlama/CybersecurityBenchmarks/requirements.txt
 python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl
 
 # Alternative: if PurpleLlama is not at the same directory level as purpcode, please specify the custom path using --purplellama_path parameter
+# Example (replace with your actual PurpleLlama installation path):
 python eval/main.py --task "purpcode/CyberSecEval-SCG" \
                     --model purpcode/purpcode-14b-rl \
-                    --purplellama_path /path/to/PurpleLlama
+                    --purplellama_path ../PurpleLlama
 ```
 
 </div>
