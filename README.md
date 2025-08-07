@@ -174,6 +174,25 @@ python eval/main.py --task "purpcode/PHTest"             --model purpcode/purpco
 Notes:
 * `--oracle` for evaluating customized generation (default guessing from dataset).
 
+<details><summary>CyberSecEval SCG Evaluation Setup <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+# Download PurpleLlama repository for CyberSecEval evaluation
+git clone https://github.com/meta-llama/PurpleLlama.git
+
+# Run CyberSecEval SCG evaluation with custom PurpleLlama path
+python eval/main.py --task "purpcode/CyberSecEval-SCG" \
+                    --model purpcode/purpcode-14b-rl \
+                    --purplellama_path /path/to/PurpleLlama
+
+# Note: if PurpleLlama is cloned at the same directory level as purpcode
+# (e.g., both /path/to/PurpleLlama and /path/to/purpcode), then the --purplellama_path parameter can be omitted
+python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl
+```
+</div>
+</details>
+
 ## Acknowledgements
 
 - [Amazon Nova AI Challenge](https://www.amazon.science/nova-ai-challenge) for funding our research
