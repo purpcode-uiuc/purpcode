@@ -174,22 +174,26 @@ python eval/main.py --task "purpcode/PHTest"             --model purpcode/purpco
 Notes:
 * `--oracle` for evaluating customized generation (default guessing from dataset).
 
-<details><summary>CyberSecEval SCG Evaluation Setup <i>:: click to expand ::</i></summary>
+<details><summary><b>CyberSecEval SCG Evaluation Setup</b> <i>:: click to expand ::</i></summary>
 <div>
 
 ```bash
-# Download PurpleLlama repository for CyberSecEval evaluation
+# Download and setup PurpleLlama repository for CyberSecEval evaluation
+cd .. # assuming you are in purpcode directory
 git clone https://github.com/meta-llama/PurpleLlama.git
+cd PurpleLlama
+pip install -r CybersecurityBenchmarks/requirements.txt
+cd ../purpcode
 
-# Run CyberSecEval SCG evaluation with custom PurpleLlama path
+# Run CyberSecEval SCG evaluation (default setup)
+python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl
+
+# Alternative: if PurpleLlama is not at the same directory level as purpcode, please specify the custom path using --purplellama_path parameter
 python eval/main.py --task "purpcode/CyberSecEval-SCG" \
                     --model purpcode/purpcode-14b-rl \
                     --purplellama_path /path/to/PurpleLlama
-
-# Note: if PurpleLlama is cloned at the same directory level as purpcode
-# (e.g., both /path/to/PurpleLlama and /path/to/purpcode), then the --purplellama_path parameter can be omitted
-python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl
 ```
+
 </div>
 </details>
 
