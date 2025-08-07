@@ -17,7 +17,7 @@ from markdown_it import MarkdownIt
 from rich import print as rprint
 from tqdm import tqdm
 
-from rl.reward_utility.text import validate_response_structure
+from utils.verify_text import validate_response_structure
 
 
 def _parse_analysis_text(markdown_text: str) -> dict[str, str]:
