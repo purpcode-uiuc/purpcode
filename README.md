@@ -137,7 +137,7 @@ pip install vllm==0.8.2
 pip install flash-attn --no-build-isolation --upgrade
 
 cd purpcode # come back to the root directory
-python rl/data/merge.py --datasets purpcorn/code-r1-46k-leetcode2k-kodcode purpcorn/rl-codesec-78k purpcorn/rl-secqa-11k purpcorn/rl-safety-8k-single-turn \
+python rl/data/merge.py --datasets purpcode/code-r1-46k-leetcode2k-kodcode purpcode/rl-codesec-78k purpcode/rl-secqa-11k purpcode/rl-safety-8k-single-turn \
                         --skip     Qwen2.5-14B-Instruct-1M.ez_task_ids.txt
 
 # ---------------------------
@@ -173,6 +173,53 @@ python eval/main.py --task "purpcode/PHTest"             --model purpcode/purpco
 
 Notes:
 * `--oracle` for evaluating customized generation (default guessing from dataset).
+
+<details><summary><b>CyberSecEval SCG Evaluation Setup</b> <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+# Download and setup PurpleLlama repository for CyberSecEval evaluation
+# Note: Run from purpcode directory, PurpleLlama will be cloned as a sibling directory
+git clone https://github.com/meta-llama/PurpleLlama.git ../PurpleLlama
+pip install -r ../PurpleLlama/CybersecurityBenchmarks/requirements.txt
+
+# Run CyberSecEval SCG evaluation (default setup)
+python eval/main.py --task "purpcode/CyberSecEval-SCG" --model purpcode/purpcode-14b-rl
+
+# Alternative: if PurpleLlama is not at the same directory level as purpcode, please specify the custom path using --purplellama_path parameter
+# Example (replace with your actual PurpleLlama installation path):
+python eval/main.py --task "purpcode/CyberSecEval-SCG" \
+                    --model purpcode/purpcode-14b-rl \
+                    --purplellama_path ../PurpleLlama
+```
+
+</div>
+</details>
+
+<details><summary><b>CWEval Evaluation Setup</b> <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+# Download and setup CWEval repository for CWEval evaluation
+# Note: Run from purpcode directory, CWEval will be cloned as a sibling directory
+git clone https://github.com/Co1lin/CWEval.git ../CWEval
+
+# Run CWEval evaluation (default setup)
+python eval/main.py --task "purpcode/CWEval" --model purpcode/purpcode-14b-rl
+
+# Alternative: if CWEval is not at the same directory level as purpcode, please specify the custom path using --cweval_path parameter
+# Example (replace with your actual CWEval installation path):
+python eval/main.py --task "purpcode/CWEval" \
+                    --model purpcode/purpcode-14b-rl \
+                    --cweval_path ../CWEval
+
+# Note: Generated files will be saved to the CWEval repository
+# purpcode only handles response generation; evaluation must be performed in the CWEval repository
+# Follow the CWEval README (https://github.com/Co1lin/CWEval/blob/main/README.md) for further evaluation steps
+```
+
+</div>
+</details>
 
 ## Acknowledgements
 
