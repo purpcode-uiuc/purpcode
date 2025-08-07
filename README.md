@@ -196,6 +196,31 @@ python eval/main.py --task "purpcode/CyberSecEval-SCG" \
 </div>
 </details>
 
+<details><summary><b>CWEval Evaluation Setup</b> <i>:: click to expand ::</i></summary>
+<div>
+
+```bash
+# Download and setup CWEval repository for CWEval evaluation
+# Note: Run from purpcode directory, CWEval will be cloned as a sibling directory
+git clone https://github.com/Co1lin/CWEval.git ../CWEval
+
+# Run CWEval evaluation (default setup)
+python eval/main.py --task "purpcode/CWEval" --model purpcode/purpcode-14b-rl
+
+# Alternative: if CWEval is not at the same directory level as purpcode, please specify the custom path using --cweval_path parameter
+# Example (replace with your actual CWEval installation path):
+python eval/main.py --task "purpcode/CWEval" \
+                    --model purpcode/purpcode-14b-rl \
+                    --cweval_path ../CWEval
+
+# Note: Generated files will be saved to the CWEval repository
+# purpcode only handles response generation; evaluation must be performed in the CWEval repository
+# Follow the CWEval README (https://github.com/Co1lin/CWEval/blob/main/README.md) for further evaluation steps
+```
+
+</div>
+</details>
+
 ## Acknowledgements
 
 - [Amazon Nova AI Challenge](https://www.amazon.science/nova-ai-challenge) for funding our research

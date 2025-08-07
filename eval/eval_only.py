@@ -12,6 +12,7 @@ def main(
     llm_judge: str = DEFAULT_LLM_JUDGE,
     reference_results_path: str = None,
     purplellama_path: str = None,
+    cweval_path: str = None,
 ):
     evaluate_main(
         task,
@@ -20,6 +21,7 @@ def main(
         llm_judge=llm_judge,
         reference_results_path=reference_results_path,
         purplellama_path=purplellama_path,
+        cweval_path=cweval_path,
     )
 
 
