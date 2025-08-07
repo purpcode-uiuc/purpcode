@@ -196,8 +196,6 @@ python eval/main.py --task "purpcode/CyberSecEval-SCG" \
 </div>
 </details>
 
-</details>
-
 <details><summary><b>CWEval Evaluation Setup</b> <i>:: click to expand ::</i></summary>
 <div>
 
