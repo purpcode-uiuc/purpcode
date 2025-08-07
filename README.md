@@ -1,6 +1,6 @@
 # 🔮 PurpCode: Reasoning for Safer Code Generation
 
-This repo includes the training and evaluation infrastructure for PurpCode. For other related resources, please check out:
+This repo includes the training, evaluation, and data curation code for PurpCode. Please also check out:
 
 * [📝 Paper](https://arxiv.org/abs/2507.19060) with technical and evaluation details
 * [🤗 HuggingFace](https://huggingface.co/purpcode) including model checkpoints and training/evaluation datasets
@@ -18,9 +18,9 @@ PurpCode includes two alignment stages:
 - The ☝️*first* cybersafe reasoning recipe in open source
 - Great cybersafety and utility preservation, winning the 🥇*1st place* in [Amazon Nova AI Challenge](https://www.amazon.science/nova-ai-challenge/pushing-the-boundaries-of-secure-ai-winners-of-the-amazon-nova-ai-challenge)
 - Fully 👐open-sourced, from models, data, to training/evaluation code and data synthesizers
-- 🏎️Fast RL with *Single-Step Dynamic Sampling* -- 12% faster, 15% less sample wasting, and better results than [DAPO](https://arxiv.org/abs/2503.14476)
-- 📚Supporting 13 evals, 90 CWEs, and 4 training objectives & rewards, covering cybersafety, utility, and overrefusal
-- 🙅‍♂️XSCode -- our home-made evaluator and the *first* benchmark for checking overrefusal in secure code generation
+- 🏎️Fast RL with *Single-Step Dynamic Sampling* -- 12% faster, 15% less sample wastes, & better results than [DAPO](https://arxiv.org/abs/2503.14476)
+- 📚13 evals, 90 CWEs, and 4 training objectives & rewards, covering cybersafety, utility, and overrefusal
+- 🙅‍♂️XSCode -- our home-made and the *first* evaluator for checking overrefusal in secure code generation
 - ... and more details in the [paper](https://arxiv.org/abs/2507.19060)!
 
 ## Initial Setup
@@ -52,8 +52,7 @@ tmux detach
 
 # --- TMUX SESSION "sandbox" ---
 tmux new -s sandbox
-docker run -it -p 8080:8080 volcengine/sandbox-fusion:server-20241204
-tmux detach
+docker run -it -p 8080:8080 volcengine/sandbox-fusion:server-20241204 & tmux detach
 # ------------------------------
 ```
 
@@ -83,6 +82,7 @@ conda activate purp
 pip install -r requirements.txt
 # Sampling
 python datagen/ctxdistill/distill_main.py --model openai/Qwen/Qwen2.5-14B-Instruct-1M --sample-per-prompt 8 --concurrency 400
+tmux detach
 # ---------------------------
 
 # --- TMUX SESSION "sgl" ---
@@ -91,8 +91,7 @@ tmux at -t sgl
 # Ctrl + C
 # Serve the LLM judge model
 huggingface-cli download Qwen/Qwen2.5-32B-Instruct
-python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-32B-Instruct --dp-size 8 --port 30000 --host 0.0.0.0
-tmux detach
+python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-32B-Instruct --dp-size 8 --port 30000 --host 0.0.0.0 & tmux detach
 # --------------------------
 
 # --- TMUX SESSION "main" ---
