@@ -137,7 +137,7 @@ pip install vllm==0.8.2
 pip install flash-attn --no-build-isolation --upgrade
 
 cd purpcode # come back to the root directory
-python rl/data/merge.py --datasets purpcorn/code-r1-46k-leetcode2k-kodcode purpcorn/rl-codesec-78k purpcorn/rl-secqa-11k purpcorn/rl-safety-8k-single-turn \
+python rl/data/merge.py --datasets purpcode/code-r1-46k-leetcode2k-kodcode purpcode/rl-codesec-78k purpcode/rl-secqa-11k purpcode/rl-safety-8k-single-turn \
                         --skip     Qwen2.5-14B-Instruct-1M.ez_task_ids.txt
 
 # ---------------------------
