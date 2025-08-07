@@ -146,7 +146,7 @@ def construction_analyzer_info(analyzer_results: dict):
                 + "\n```"
             )
             block.append(
-                recommendataion.split("[Learn more]")[0]
+                recommendation.split("[Learn more]")[0]
                 .split("**More info**")[0]
                 .strip()
             )
@@ -255,7 +255,7 @@ def run_distillation(
 ):
     if not eval:  # using training data
         temperature = 0.8
-        output_path = f"{model.split('/')[-1]}.distill.june.train.jsonl"
+        output_path = f"{model.split('/')[-1]}.distill.train.jsonl"
         print(f"Expected output path: {output_path}")
 
         rows = []
@@ -288,9 +288,7 @@ def run_distillation(
     else:  # eval mode
         assert sample_per_prompt == 1, "Sample per prompt is not supported in eval mode"
         temperature = 0.2 if "Qwen3" in model or "DeepSeek-R1" in model else 0.0
-        output_path = (
-            f"{model.split('/')[-1]}.distill.june.eval.{eval.split('/')[-1]}.jsonl"
-        )
+        output_path = f"{model.split('/')[-1]}.distill.eval.{eval.split('/')[-1]}.jsonl"
         dataset = load_dataset(eval, split="test")
         # expand turns if there's a mixture of user and assistant turns
         print(f"Dataset before expansion: {dataset}")
