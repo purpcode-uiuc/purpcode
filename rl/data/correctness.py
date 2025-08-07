@@ -61,7 +61,6 @@ def kodcode():
         "scipy",
         "sklearn",
         "cv2",
-        "scipy",
         "imageio",
         "sphinx-pyproject",
         "xgboost",

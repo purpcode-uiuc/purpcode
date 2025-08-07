@@ -67,7 +67,7 @@ pip install --upgrade pip
 pip install "sglang[all]>=0.4.9.post2" "sglang-router" "huggingface-hub"
 
 huggingface-cli download Qwen/Qwen2.5-14B-Instruct-1M
-python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-14B-Instruct-1M --dp-size 8 --port 30000 --host 0.0.0.0 | tmux detach
+python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-14B-Instruct-1M --dp-size 8 --port 30000 --host 0.0.0.0 & tmux detach
 # --------------------------
 
 # --- TMUX SESSION "main" ---
@@ -106,7 +106,7 @@ python datagen/ctxdistill/post.py --generation-path Qwen2.5-14B-Instruct-1M.dist
 tmux at -t main || tmux new -s main
 conda create -n axo python=3.12 -y
 conda activate axo
-git clone git@github.com:axolotl-ai-cloud/axolotl.git
+git clone https://github.com/axolotl-ai-cloud/axolotl.git
 cd axolotl
 pip3 install torch --index-url https://download.pytorch.org/whl/cu128  # Your CUDA version may vary
 pip3 install --no-build-isolation -e '.[flash-attn,deepspeed]'
@@ -142,7 +142,7 @@ python rl/data/merge.py --datasets purpcorn/code-r1-46k-leetcode2k-kodcode purpc
 # --- TMUX SESSION "sgl" (remote machine) ---
 # Do it in another machine (assuming ip=a.b.c.d) as your local GPUs are allocated to RL training
 tmux at -t sgl || tmux new -s sgl
-python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-32B-Instruct --dp-size 8 --port 30000 --host 0.0.0.0 | tmux detach
+python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-32B-Instruct --dp-size 8 --port 30000 --host 0.0.0.0 & tmux detach
 # -------------------------------------------
 
 # --- TMUX SESSION "main" (RL machine) ---
