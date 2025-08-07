@@ -2,9 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# SPDX-FileCopyrightText: (c) iSE UIUC Research Group
-#
-# SPDX-License-Identifier: Apache-2.0
 
 from cwe2ovrf import cwe2ovrf_main
 from dedup import dedup_main

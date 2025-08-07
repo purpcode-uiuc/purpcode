@@ -2,15 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# SPDX-FileCopyrightText: (c) iSE UIUC Research Group
-#
-# SPDX-License-Identifier: Apache-2.0
-
-"""
-Script to process JSONL files and filter records where malicious, unnatural,
-and too_simple are all "disagree", then display statistics.
-"""
-
 import json
 from collections import Counter
 from pathlib import Path
