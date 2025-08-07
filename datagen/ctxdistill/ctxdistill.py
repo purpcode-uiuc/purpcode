@@ -138,7 +138,7 @@ def construction_analyzer_info(analyzer_results: dict):
 {ruff_info["example_good"]}
 ```"""
                 )
-        if recommendataion := raw_guru["recommendation_text"]:
+        if recommendation := raw_guru["recommendation_text"]:
             block.append("*Case Study*:")
             block.append(
                 "```python\n"
