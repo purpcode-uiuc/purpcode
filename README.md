@@ -34,7 +34,9 @@ export SHELL_RC=${HOME}/.bashrc # or ~/.zshrc if you use zsh
 curl -OL https://github.com/aws/aws-codeguru-cli/releases/download/0.2.4/aws-codeguru-cli.zip
 unzip aws-codeguru-cli.zip -d ${HOME}
 export PATH=$PATH:${HOME}/aws-codeguru-cli/bin/
-sed -i '1i export PATH=$PATH:${HOME}/aws-codeguru-cli/bin/' ${SHELL_RC}
+if ! grep -q 'export PATH=$PATH:${HOME}/aws-codeguru-cli/bin/' "${SHELL_RC}"; then
+  sed -i '1i export PATH=$PATH:${HOME}/aws-codeguru-cli/bin/' "${SHELL_RC}"
+fi
 
 # codeql -- if you don't want to use codeguru, you can use codeql instead which only eats CPUs but the analyzer completeness and soundness can be different
 #        -- you also need to set environment variable to PURPCODE_CODE_ANALYZER=codeql
