@@ -275,7 +275,7 @@ def datagen_for_one_cwe(cwe_id, markdown, depth, remote_api=False):
 
 def main(
     parallel=256,
-    output_path="outputs/rule2code/cwe2code-raw.jsonl",
+    output_path="outputs/rule2code/cwe2code.jsonl",
     depth=1,
     remote_api=False,
 ):
