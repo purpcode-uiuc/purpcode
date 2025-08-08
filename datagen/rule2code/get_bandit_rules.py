@@ -104,9 +104,7 @@ def categorize_bandit_text(full_text: str) -> Dict[str, Optional[str]]:
                 text = text.split("\nNote")[0].rstrip()
                 text = text.split("\nOptions")[0].rstrip()
             elif current_key in ["what_it_does", "why_bad"]:
-                text = " ".join(line.strip() for line in text.splitlines())
-                text = text.strip()
-                text = re.sub(r"\s+", " ", text)
+                text = " ".join(text.split())
             if out[current_key]:
                 out[current_key] += "\n" + text
             else:

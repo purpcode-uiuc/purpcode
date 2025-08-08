@@ -70,7 +70,7 @@ def ruff_code(bid: str) -> str:
     return "S" + bid[1:]
 
 
-def extract_code_examples(input_path, output_path):
+def extract_code_examples(input_path: str, output_path: str) -> None:
     with open(input_path, "r") as f, open(output_path, "w") as out:
         for line in f:
             data = json.loads(line)
@@ -98,8 +98,12 @@ def extract_code_examples(input_path, output_path):
 
 
 def reformat_results(
-    analyzer_results_path, input_path, output_path, ruff_rules_path, source
-):
+    analyzer_results_path: str,
+    input_path: str,
+    output_path: str,
+    ruff_rules_path: str,
+    source: str,
+) -> str:
     ruff_rules = load_ruff_rules(ruff_rules_path)
     rule_keys: set[str] = {k for r in ruff_rules.values() for k in r.keys()}
 
@@ -110,6 +114,11 @@ def reformat_results(
         return "\n".join(lines[1:-1])
 
     results = []
+
+    if not Path(analyzer_results_path).exists():
+        raise FileNotFoundError(
+            f"Analyzer results file not found: {analyzer_results_path}. "
+        )
 
     with open(analyzer_results_path, "r") as f:
         analyzer_data = json.load(f)
@@ -161,6 +170,20 @@ def reformat_results(
                     elif analyzer_type == "codeql":
                         codeql_cwes.update(parsed_cwes)
 
+                code_snippets = finding["misc"]["finding"]["code_snippet"]
+                start_line = finding["misc"]["finding"]["start_line"]
+                end_line = finding["misc"]["finding"]["end_line"]
+
+                vuln_lines = []
+                for snippet in code_snippets:
+                    if start_line <= snippet["line"] <= end_line:
+                        vuln_lines.append(snippet["content"])
+
+                if not vuln_lines:
+                    vuln_code = code_snippets[-1]["content"] if code_snippets else ""
+                else:
+                    vuln_code = "\n".join(vuln_lines)
+
                 analyzer_result = {
                     "raw_codeguru_detection": {
                         "analyzer": finding["analyzer"],
@@ -193,9 +216,7 @@ def reformat_results(
                         "url": finding["misc"]["finding"]["recommendation_url"],
                     },
                     "ruff_website_info": {},
-                    "vuln_code_line": finding["misc"]["finding"]["code_snippet"][-1][
-                        "content"
-                    ],
+                    "vuln_code_line": vuln_code,
                 }
 
                 recommendation_text = finding["misc"]["finding"].get(
@@ -238,7 +259,7 @@ def main(
     input_path="outputs/rule2code/cwe2code.jsonl",
     ruff_rules_path="bandit_rules.json",
     source="cwe2code",
-):
+) -> None:
     output_path = input_path.replace(".jsonl", ".processed.jsonl")
 
     extract_code_examples(input_path, output_path)
