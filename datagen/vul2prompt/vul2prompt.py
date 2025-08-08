@@ -324,6 +324,7 @@ def main(
             if not pending_rules:
                 continue
 
+            pending_strategies = list(set(strat for strat, _ in pending_rules))
             futures.append(
                 executor.submit(
                     datagen_for_one_seed,
@@ -332,7 +333,7 @@ def main(
                     finished_pairs,
                     depth,
                     remote_api,
-                    strategies,
+                    pending_strategies,
                 )
             )
 

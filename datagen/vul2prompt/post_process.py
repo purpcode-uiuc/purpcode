@@ -21,7 +21,7 @@ def process_files(
     base_output = input_path.replace(".jsonl", "")
 
     seed_data = {}
-    with open(seed_code_path, "r") as f:
+    with open(seed_code_path, "r", encoding="utf-8") as f:
         for line in f:
             data = json.loads(line)
             seed_data[data["id"]] = {
@@ -30,15 +30,13 @@ def process_files(
                 "source": data["source"],
             }
 
-    with open(input_path, "r") as f_in:
+    with open(input_path, "r", encoding="utf-8") as f_in:
         prompts_data = []
 
         for line in f_in:
             data = json.loads(line)
-            assistant_count = 0
             for message in data["conversation"]:
                 if message.get("role") == "assistant":
-                    assistant_count += 1
                     content = message.get("content", "").strip()
                     prompt_match = re.search(
                         r"--- BEGIN OF PROMPT ---(.*?)--- END OF PROMPT ---",
@@ -73,10 +71,10 @@ def process_files(
 
     for strategy, data_list in strategy_data.items():
         output_file = f"{base_output}.{strategy}.jsonl"
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             for data in data_list:
                 f.write(json.dumps(data) + "\n")
-        print(f"Generated {output_file} with {len(data_list)} entries")
+        print(f"Generated {output_file} with {len(data_list)} prompts")
 
 
 if __name__ == "__main__":
