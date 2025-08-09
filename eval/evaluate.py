@@ -37,7 +37,6 @@ def evaluate_main(
     generation_path: str,
     oracle: str = None,
     llm_judge: str = None,
-    reference_results_path: str = None,
     purplellama_path: str = None,
     cweval_path: str = None,
 ):
@@ -85,8 +84,6 @@ def evaluate_main(
             generation_path=generation_path,
             model=llm_judge or DEFAULT_LLM_JUDGE,
             min_severity_level="MEDIUM",
-            reference_results_path=reference_results_path,
-            show_separate_stats=True,
         )
     elif oracle == "cyberseceval":
         from eval.cyberseceval import evaluate_cyberseceval
@@ -120,7 +117,6 @@ def evaluate_main(
         evaluate_malicious_event_assistance(
             generation_path=generation_path,
             model=llm_judge or DEFAULT_LLM_JUDGE,
-            task=task,
         )
     elif oracle == "overrefusal":
         from eval.oracles.check_secqa import evaluate_secqa_answers
