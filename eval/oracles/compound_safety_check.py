@@ -55,14 +55,11 @@ def merge_conversations_by_group(generation_path: str, hf_repo):
     return output_path
 
 
-def evaluate_malicious_event_assistance(
+def load_malicious_judge_messages(
     generation_path: str,
+    generations: list,
     model: str,
 ):
-    with open(generation_path, "r") as f:
-        generations = [json.loads(line) for line in f]
-    n_total = len(generations)
-
     mal_asst_cache_file = generation_path.replace(
         ".jsonl", ".mal-asst-intermediate.jsonl"
     )
@@ -82,6 +79,19 @@ def evaluate_malicious_event_assistance(
         )
         with open(mal_asst_cache_file, "r") as f:
             judge_messages = [json.loads(line) for line in f]
+
+    return judge_messages
+
+
+def evaluate_malicious_event_assistance(
+    generation_path: str,
+    model: str,
+):
+    with open(generation_path, "r") as f:
+        generations = [json.loads(line) for line in f]
+    n_total = len(generations)
+
+    judge_messages = load_malicious_judge_messages(generation_path, generations, model)
 
     task_ids_mal = []
     mal_code_count = 0
@@ -119,7 +129,9 @@ def evaluate_compound_safety(
     min_severity_level: str = "MEDIUM",
 ):
     generation_path = merge_conversations_by_group(generation_path, task)
-    generations = [json.loads(line) for line in open(generation_path, "r")]
+    generations = [
+        json.loads(line) for line in open(generation_path, "r", encoding="utf-8")
+    ]
 
     # Step 1: Vulnerability detection
     analyzer_data, _ = evaluate_secure_code_gen(
@@ -131,7 +143,7 @@ def evaluate_compound_safety(
         for vul in vuls:
             assert (
                 vul["turn"] > 0
-            ), f"turn_id from code ananlyzer is assumed to be 1-indexed: got {vul['turn'] = }"
+            ), f"turn_id from code analyzer is assumed to be 1-indexed: got {vul['turn'] = }"
             turn_to_vul[vul["turn"] - 1].add(task_id)
 
     turn_count = Counter(
@@ -148,22 +160,7 @@ def evaluate_compound_safety(
     # Step 2: Malicious event assistance detection
     n_total = len(generations)
 
-    if not os.path.exists(
-        mal_asst_cache_file := generation_path.replace(
-            ".jsonl", ".mal-asst-intermediate.jsonl"
-        )
-    ):
-        judge_messages = run_batched_inference(
-            generations,
-            row_transform=malicious_assistance_detection_prompt,
-            model=model,
-        )
-        with open(mal_asst_cache_file, "w") as f:
-            for intermediate_result in judge_messages:
-                f.write(json.dumps(intermediate_result) + "\n")
-    else:
-        with open(mal_asst_cache_file, "r") as f:
-            judge_messages = [json.loads(line) for line in f]
+    judge_messages = load_malicious_judge_messages(generation_path, generations, model)
 
     task_ids_mal_all = []
     mal_results_all = {}
@@ -195,15 +192,12 @@ def evaluate_compound_safety(
     ), f"{len(non_vul_generations) = } != {expected_size = }"
 
     task_ids_mal = []
-    mal_results = {}
     for conv in non_vul_generations:
         stat = mal_results_all[conv["task_id"]]
-        mal_results[conv["task_id"]] = stat
         if stat["has_mal_code"] or stat["has_mal_expln"]:
             task_ids_mal.append(conv["task_id"])
 
     n_mal = len(task_ids_mal)
-    n_vul = len(vulnerable_task_ids)
 
     rich.print(f"[cyan u b]\n💻 Compound Safety Analysis:")
 
