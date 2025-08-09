@@ -7,7 +7,7 @@ import os
 import shutil
 import subprocess
 import tempfile
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import rich
 from rich.console import Console
@@ -164,6 +164,16 @@ def execute_codeql(samples: List[Dict], output_dir: str) -> Dict:
         return results
 
 
+def parse_uri(uri: str) -> Tuple[str, str, str]:
+    task_id, turn_id, snippet_id = (
+        "--".join(uri.split("--")[:-2]),
+        uri.split("--")[-2],
+        uri.split("--")[-1],
+    )
+
+    return task_id, turn_id, snippet_id
+
+
 def parse_and_filter_codeql_results(
     analyzer_results: Dict,
     min_severity_level: str = "MEDIUM",
@@ -192,11 +202,8 @@ def parse_and_filter_codeql_results(
 
         for location in finding["locations"]:
             uri = location["physicalLocation"]["artifactLocation"]["uri"]
-            task_id, turn_id, snippet_id = (
-                "--".join(uri.split("--")[:-2]),
-                uri.split("--")[-2],
-                uri.split("--")[-1],
-            )
+
+            task_id, turn_id, snippet_id = parse_uri(uri)
 
             cwe_tags = [
                 tag.replace("external/cwe/cwe-", "cwe-")
