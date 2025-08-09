@@ -9,10 +9,13 @@ import subprocess
 import tempfile
 from typing import Dict, List, Optional
 
+import rich
+from rich.console import Console
+
 from eval.oracles.secure_code_oracles_utils import check_min_severity
 
-CODEQL_THREADS = os.getenv("CODEQL_THREADS", 8)
-assert int(CODEQL_THREADS) > 0, "CODEQL_THREADS must be a positive integer."
+CODEQL_THREADS = int(os.getenv("CODEQL_THREADS", "8"))
+assert CODEQL_THREADS > 0, "CODEQL_THREADS must be a positive integer."
 
 
 def map_severity(severity_score: float) -> str:
@@ -44,20 +47,8 @@ def check_codeql_installation() -> Optional[str]:
         raise RuntimeError(f"Error running CodeQL: {str(e)}")
 
 
-def get_filepaths_in_directory(foldername: str, extension: str) -> List[str]:
-    files = []
-    for root, _, filenames in os.walk(foldername):
-        for filename in filenames:
-            filepath = os.path.join(root, filename)
-            if os.path.isfile(filepath):
-                if filepath.endswith(extension):
-                    files.append(filepath)
-
-    return sorted(files)  # Sort for consistent ordering
-
-
 def create_codeql_database(
-    database_dir: str, src_dir: str, verbose: str = None
+    database_dir: str, src_dir: str, verbose: bool = False
 ) -> None:
     command = [
         "codeql",
@@ -80,25 +71,31 @@ def create_codeql_database(
         bufsize=1,
         universal_newlines=True,
     )
-    for line in process.stdout:
-        if verbose:
-            print(line, end="")
-    process.stdout.close()
-    process.wait()
-    if process.returncode != 0:
-        print(f"CodeQL analysis failed: {process.returncode = }.")
+    if process.stdout is not None:
+        console = Console()
+        for line in process.stdout:
+            if verbose:
+                console.print(line, end="", style="purple")
+        process.stdout.close()
+        process.wait()
+        if process.returncode != 0:
+            rich.print(f"[red]CodeQL analysis failed: {process.returncode = }.")
+    else:
+        rich.print(
+            "[red]Error: CodeQL database creation process did not produce any output. Check if CodeQL is installed correctly.[/red]"
+        )
+        raise RuntimeError("CodeQL process failed to start or produce output.")
 
 
-def run_codeql_analysis(database_dir: str, output_file_name: str, verbose: str = None):
+def run_codeql_analysis(
+    database_dir: str, output_file_name: str, verbose: bool = False
+):
     command = [
         "codeql",
         "database",
         "analyze",
         database_dir,
         "codeql/python-queries:codeql-suites/python-security-and-quality.qls",
-        # "codeql/python-queries:codeql-suites/python-security-experimental.qls", # comment for speed
-        # "--download",
-        # "githubsecuritylab/codeql-python-queries",  # too slow
         "--format",
         "sarif-latest",
         "--output",
@@ -115,19 +112,26 @@ def run_codeql_analysis(database_dir: str, output_file_name: str, verbose: str =
         bufsize=1,
         universal_newlines=True,
     )
-    for line in process.stdout:
-        if verbose:
-            print(line, end="")
+    if process.stdout is not None:
+        console = Console()
+        for line in process.stdout:
+            if verbose:
+                console.print(line, end="", style="purple")
+        process.stdout.close()
+        process.wait()
+        if process.returncode != 0:
+            rich.print(f"[red]CodeQL analysis failed: {process.returncode = }.")
+            raise RuntimeError(
+                f"CodeQL database creation failed with exit code {process.returncode}."
+            )
+    else:
+        rich.print(
+            "[red]Error: CodeQL analysis process did not produce any output. Check if CodeQL is installed correctly.[/red]"
+        )
+        raise RuntimeError("CodeQL process failed to start or produce output.")
 
-    process.stdout.close()
-    process.wait()
 
-    if process.returncode != 0:
-        print(f"CodeQL analysis failed: {process.returncode = }.")
-
-
-def execute_codeql(samples: List[Dict], output_dir: str) -> List[Dict]:
-
+def execute_codeql(samples: List[Dict], output_dir: str) -> Dict:
     os.makedirs(output_dir, exist_ok=True)
 
     with tempfile.TemporaryDirectory(dir=output_dir) as temp_dir:
@@ -136,9 +140,10 @@ def execute_codeql(samples: List[Dict], output_dir: str) -> List[Dict]:
                 continue
 
             for code_block_no, code_block in enumerate(sample["code_blocks"]):
+                task_id = sample["task_id"].replace("/", "_").replace("\\", "_")
                 file_path = os.path.join(
                     temp_dir,
-                    f"{sample['task_id']}--{sample['turn']}--{code_block_no + 1}.py",
+                    f"{task_id}--{sample['turn']}--{code_block_no + 1}.py",
                 )
 
                 with open(file_path, "w") as f:
