@@ -6,8 +6,6 @@ import json
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from dotenv import load_dotenv
-from litellm import batch_completion
 from openai import OpenAI
 from rich import print as rprint
 from tqdm import tqdm
@@ -175,10 +173,7 @@ def generate_followup_prompt(strategy, strategy_name):
 * Follow the same format and guidelines as before"""
 
 
-def _create_client(remote_api=False):
-    if remote_api:
-        load_dotenv()
-        return None, "bedrock/converse/us.deepseek.r1-v1:0"
+def _create_client():
     return (
         OpenAI(api_key="none", base_url="http://localhost:30000/v1"),
         "default",
@@ -199,13 +194,12 @@ def datagen_for_one_seed(
     output_file,
     finished_pairs,
     depth=1,
-    remote_api=False,
     pending_strategies=None,
 ):
     if pending_strategies is None:
         pending_strategies = []
 
-    client, model = _create_client(remote_api=remote_api)
+    client, model = _create_client()
     common_args = {
         "model": model,
         "temperature": 0.6,
@@ -226,16 +220,10 @@ def datagen_for_one_seed(
         ]
 
         for i in range(depth):
-            if remote_api:
-                response = batch_completion(
-                    messages=[messages],
-                    **common_args,
-                )[0]
-            else:
-                response = client.chat.completions.create(
-                    messages=messages,
-                    **common_args,
-                )
+            response = client.chat.completions.create(
+                messages=messages,
+                **common_args,
+            )
 
             if response.choices[0].finish_reason == "length":
                 break
@@ -274,7 +262,6 @@ def main(
     input_path="outputs/rule2code/cwe2code.processed.jsonl",
     output_path="outputs/vul2prompt/vul2prompt.jsonl",
     depth=1,
-    remote_api=False,
     strategies="general",
 ):
 
@@ -294,10 +281,8 @@ def main(
             f"Found {len(finished_pairs)} already processed (seed_code_id, strategy, strategy_name) pairs"
         )
 
-    seed_data_list = []
     with open(input_path, "r", encoding="utf-8") as f:
-        for line in f:
-            seed_data_list.append(json.loads(line))
+        seed_data_list = [json.loads(line) for line in f]
 
     with ThreadPoolExecutor(max_workers=parallel) as executor:
         futures = []
@@ -319,7 +304,6 @@ def main(
                     output_path,
                     finished_pairs,
                     depth,
-                    remote_api,
                     pending_strategies,
                 )
             )

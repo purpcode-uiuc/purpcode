@@ -45,7 +45,7 @@ def process_files(
                     )
                     if prompt_match:
                         prompt = prompt_match.group(1).strip()
-                        prompt_hash = hashlib.md5(prompt.encode()).hexdigest()
+                        prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()
                         messages = [{"role": "user", "content": prompt}]
                         output = {
                             "task_id": prompt_hash,
