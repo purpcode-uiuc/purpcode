@@ -26,6 +26,10 @@ from eval.oracles.codeql_oracle import (
     parse_and_filter_codeql_results,
 )
 
+STATIC_ANALYSIS_RETRY_LIMIT = 10
+STATIC_ANALYSIS_WORKERS = 8
+CODE_PROCESSING_WORKERS = 32
+
 
 # -------------- Data Processing -----------------#
 def amz_code_extract(text: str) -> list:
@@ -33,7 +37,7 @@ def amz_code_extract(text: str) -> list:
     return [snippet for snippet in code_snippets if snippet.strip()]
 
 
-def extract_code_blocks(messages):
+def extract_code_blocks(messages: List[Dict]) -> List[Dict]:
     return [
         {
             "turn": ((i + 1) // 2),
@@ -44,14 +48,16 @@ def extract_code_blocks(messages):
     ]
 
 
-def add_code_blocks(item):
+def add_code_blocks(item: Dict) -> List[Dict]:
     return [
         {**entry, "task_id": item["task_id"]}
         for entry in extract_code_blocks(item["messages"])
     ]
 
 
-def parallel_extract_and_annotate(data, num_workers=4):
+def parallel_extract_and_annotate(
+    data: List[Dict], num_workers: int = CODE_PROCESSING_WORKERS
+) -> List[Dict]:
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         results = list(tqdm(executor.map(add_code_blocks, data), total=len(data)))
     return [solution for solutions in results for solution in solutions]
@@ -63,7 +69,7 @@ def run_static_analyzer(
     output_folder: str,
     analyzer: str = "codeguru",
     min_severity_level: str = "MEDIUM",
-    verbose: str = "debug",
+    verbose: bool = True,
 ) -> Dict:
 
     # Set temp directory for codeql and codeguru
@@ -115,7 +121,7 @@ def process_batch(
 ) -> Optional[Dict]:  # Return type changed to Optional[Dict]
 
     batch_results = None
-    max_retries = 10  # Keep existing retry logic
+    max_retries = STATIC_ANALYSIS_RETRY_LIMIT
     delay = 1
 
     for attempt in range(max_retries):
@@ -135,7 +141,7 @@ def process_batch(
                 f"[red] Batch {batch_index} ({analyzer}) failed attempt {attempt + 1}/{max_retries}. Error: {e}. Retrying..."
             )
             if attempt == max_retries - 1:
-                print(
+                rich.print(
                     f"[bold red]Batch {batch_index} ({analyzer}) failed permanently after {max_retries} attempts. Error: {e}[/bold red]",
                     file=sys.stderr,
                 )
@@ -201,24 +207,13 @@ def split_batch_equal_lines_of_code(
     return batches
 
 
-def count_code_units(batch, batch_granularity):
+def count_code_units(batch: List[Dict], batch_granularity: str) -> int:
     if batch_granularity == "block":
         return sum(len(item.get("code_blocks", [])) for item in batch)
     elif batch_granularity == "line":
-        return sum(
-            len(cb.splitlines()) for item in batch for cb in item.get("code_blocks", [])
-        )
+        return sum(count_lines_in_item(item) for item in batch)
     else:
         raise ValueError(f"Unknown granularity: {batch_granularity}")
-
-
-def get_batches(samples, granularity, num_batches):
-    if granularity == "block":
-        return split_batch_equal_code_snippets(samples, num_batches)
-    elif granularity == "line":
-        return split_batch_equal_lines_of_code(samples, num_batches)
-    else:
-        raise ValueError(f"Unsupported granularity: {granularity}")
 
 
 def prepare_batches(
@@ -232,12 +227,18 @@ def prepare_batches(
         raise ValueError(f"Unsupported batch_granularity '{granularity}'")
 
 
-def process_batches_parallel(batches, analyzer, min_severity, temp_dir, granularity):
+def process_batches_parallel(
+    batches: List[List[Dict]],
+    analyzer: str,
+    min_severity: str,
+    temp_dir: str,
+    granularity: str,
+) -> Tuple[Dict, List[Dict]]:
     results = {}
     failed_batches = []
     futures_map = {}
 
-    max_workers = min(len(batches), 8)
+    max_workers = min(len(batches), STATIC_ANALYSIS_WORKERS)
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         for i, batch in enumerate(batches):
             num_units = count_code_units(batch, granularity)
@@ -323,9 +324,11 @@ def run_analyzers_in_batch(
     batch_granularity: Literal["line", "block"] = "block",
 ) -> Tuple[Dict, Dict]:
 
-    assert {"code_blocks", "task_id", "turn"}.issubset(
-        sample_with_extrcted_code_blocks[0]
-    )
+    assert not sample_with_extrcted_code_blocks or {
+        "code_blocks",
+        "task_id",
+        "turn",
+    }.issubset(sample_with_extrcted_code_blocks[0])
 
     per_analyzer_results = {}
     failed_batches_summary = []
@@ -390,7 +393,7 @@ def evaluate_secure_code_gen(
 
     # Store the results of the analyzer a subfolder of the directory by model name
     per_analyzer_results_folder = (
-        f"{generation_path.rsplit('.', maxsplit=1)[0]}_analyzer_results"
+        f"{os.path.splitext(generation_path)[0]}_analyzer_results"
     )
 
     with open(generation_path, "r") as f:
@@ -435,7 +438,9 @@ def evaluate_secure_code_gen(
         for session_id, vulns in mrged_analyzer_results.items()
     }
 
-    with open(f"{per_analyzer_results_folder}/static_analyzer_results.json", "w") as f:
+    with open(
+        os.path.join(per_analyzer_results_folder, "static_analyzer_results.json"), "w"
+    ) as f:
         json.dump(mrged_analyzer_results, f, indent=2)
 
     return mrged_analyzer_results, cwes

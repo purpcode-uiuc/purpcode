@@ -7,31 +7,40 @@ import os
 import zipfile
 from typing import Sequence
 
+SEVERITY_ORDER = {
+    "info": 0,
+    "informational": 0,
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+}
+
 
 def get_aws_region():
-    if "AWS_REGION" in os.environ:
-        return os.environ["AWS_REGION"]
-    elif "AWS_DEFAULT_REGION" in os.environ:
-        return os.environ["AWS_DEFAULT_REGION"]
-    return "us-east-2"
+    return (
+        os.environ.get("AWS_REGION")
+        or os.environ.get("AWS_DEFAULT_REGION")
+        or "us-east-2"
+    )
 
 
 def check_min_severity(severity: str, min_sev_level: str = "MEDIUM") -> bool:
-    SEVERITY_LEVELS = ["info", "informational", "low", "medium", "high", "critical"]
+
     sev_lower = severity.lower()
     min_sev_lower = min_sev_level.lower()
 
-    if sev_lower not in SEVERITY_LEVELS:
+    if sev_lower not in SEVERITY_ORDER:
         raise ValueError(
-            f"Invalid severity level: '{severity}'. Must be one of: {', '.join(SEVERITY_LEVELS)}"
+            f"Invalid severity level: '{severity}'. Must be one of: {', '.join(SEVERITY_ORDER.keys())}"
         )
 
-    if min_sev_lower not in SEVERITY_LEVELS:
+    if min_sev_lower not in SEVERITY_ORDER:
         raise ValueError(
-            f"Invalid min severity level: '{min_sev_level}'. Must be one of: {', '.join(SEVERITY_LEVELS)}"
+            f"Invalid min severity level: '{min_sev_level}'. Must be one of: {', '.join(SEVERITY_ORDER.keys())}"
         )
 
-    return SEVERITY_LEVELS.index(sev_lower) >= SEVERITY_LEVELS.index(min_sev_lower)
+    return SEVERITY_ORDER[sev_lower] >= SEVERITY_ORDER[min_sev_lower]
 
 
 def encode_base64(original_text: str) -> str:
