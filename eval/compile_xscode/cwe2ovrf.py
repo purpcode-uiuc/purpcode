@@ -224,7 +224,7 @@ def load_codeguru_vulnerabilities(file_path):
     return vulnerabilities
 
 
-def create_codeguru_information(dataset_path: str = "purpcorn/codeguru-rules"):
+def create_codeguru_information(dataset_path: str = "purpcode/codeguru-rules"):
     collection = {}
     ds = load_dataset(dataset_path, split="scraped")
 
@@ -574,7 +574,7 @@ def cwe2ovrf_main(
 
     collection = create_cwe_information()
     if vuln_rules_type == "codeguru":
-        collection = create_codeguru_information("purpcorn/codeguru-rules")
+        collection = create_codeguru_information("purpcode/codeguru-rules")
 
     if os.path.exists(init_filepath):
         cprint(f"Found existing init messages at {init_filepath}", "yellow")

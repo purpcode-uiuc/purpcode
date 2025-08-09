@@ -61,7 +61,7 @@ bf16: true
 
 # dataset
 datasets:
-  - path: purpcode/ctxdistill-verified-Qwen2.5-14B-Instruct-1M.jsonl
+  - path: purpcode/ctxdistill-verified-Qwen2.5-14B-Instruct-1M-57k
     type: chat_template
     field_messages: messages
     message_field_training: train
