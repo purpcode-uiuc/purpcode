@@ -62,6 +62,19 @@ We will go through the example based on `Qwen/Qwen2.5-14B-Instruct-1M`:
 
 ### Rejection Sampling
 
+This step aims to generate SFT data for later use.
+Note that we already have pre-generated datasets:
+
+* [`Qwen2.5-14B-Instruct-1M`](https://huggingface.co/datasets/purpcode/ctxdistill-verified-Qwen2.5-14B-Instruct-1M-57k) via best of 8
+* [`Qwen2.5-32B-Instruct`](https://huggingface.co/datasets/purpcode/ctxdistill-verified-Qwen2.5-32B-Instruct-55k) via best of 4
+
+To generate data from scratch or for other models, follow the steps below:
+
+<details><summary><b>Rejection Sampling from Scratch</b> <i>:: click to expand ::</i></summary>
+<div>
+
+The instructions are exemplified for `Qwen/Qwen2.5-14B-Instruct-1M`. Please change the model names and the later SFT script accordingly for other models.
+
 ```bash
 # --- TMUX SESSION "sgl" ---
 conda create -n sgl python=3.12 -y
@@ -102,6 +115,10 @@ python datagen/ctxdistill/post.py --generation-path Qwen2.5-14B-Instruct-1M.dist
 # ----------------------------
 ```
 
+</div>
+</details>
+
+
 ### Running SFT
 
 ```bash
@@ -116,7 +133,7 @@ pip3 install --no-build-isolation -e '.[flash-attn,deepspeed]'
 
 cd purpcode # come back to the root directory
 # double check sft/ctxdistill_qwen14b.yaml to make sure the paths are aligned well
-axolotl train sft/ctxdistill_qwen14b.yaml --deepspeed deepspeed_configs/zero3.json
+axolotl train sft/ctxdistill_qwen14b.yaml --deepspeed deepspeed_configs/zero3.json # default to pre-generated datasets
 # --> outputs/purpcode-14b-ctxdistill
 ```
 
