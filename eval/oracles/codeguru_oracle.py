@@ -27,7 +27,7 @@ def run_codeguru(
     output_filepath: str,
     scan_name: str = "",
     region: str = "",
-    verbose: bool = False,  # Changed verbose default to bool for clarity
+    verbose: bool = False,
 ):
 
     region = region or get_aws_region()
