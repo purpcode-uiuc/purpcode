@@ -24,16 +24,16 @@ die() { echo "$*" 1>&2 ; exit 1; }
 
 zipName="/tmp/$(date +%s).zip"
 
-[ "$#" -ge 2 ] || die "2 argument required, $# provided, pass  <scanName>, <folder> and <region> example: ./run_codeguru_security.sh MyScan upload_folder/zipFile us-east-1"
+[ "$#" -eq 4 ] || die "4 arguments required. Usage: $0 <scanName> <fileOrFolder> <region> <outputFile>"
 
 echo "$fileOrFolder"
 
-if [ ! -d "$fileOrFolder" ] && [ ! -f $fileOrFolder ]; then
+if [ ! -d "$fileOrFolder" ] && [ ! -f "$fileOrFolder" ]; then
         die "file or folder doesn't exist"
 fi
 if [ -d "$fileOrFolder" ]; then
   zipName="/tmp/$(date +%s).zip"
-  zip -r $zipName $fileOrFolder
+  zip -r "$zipName" "$fileOrFolder"
 else
   zipName=$fileOrFolder
 fi
@@ -48,7 +48,7 @@ fi
 
 
 createuploadcommand="aws codeguru-security create-upload-url --region $region --scan-name=$scanName"
-echo "Uploading content\n"
+echo -e "Uploading content\n"
 echo $createuploadcommand
 
 uploadUrl=$(eval $createuploadcommand)
@@ -63,14 +63,14 @@ codeArtifactId=$(echo $uploadUrl | jq '.codeArtifactId')
 uploadContentCommand="curl -X PUT -T $zipName -H \"Content-Type: application/zip\" $requestHeaders $s3Url"
 
 
-echo "Uploading content by running folowing command.\n"
+echo "Uploading content by running following command.\n"
 echo $uploadContentCommand
 
 eval $uploadContentCommand
 
 createScanCommand="aws codeguru-security create-scan --region $region --scan-name=$scanName --resource-id '{\"codeArtifactId\": $codeArtifactId}'"
 
-echo "creating a scan \n"
+echo -e "creating a scan \n"
 
 echo $createScanCommand
 

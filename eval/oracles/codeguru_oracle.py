@@ -171,7 +171,7 @@ def parse_and_filter_codeguru_results(
             if not path.name:
                 continue
 
-            filename = decode_base64(path.name[:-2]).split(".")[0]
+            filename = decode_base64(path.stem)
             filename_parts = filename.split("--")
 
             if len(filename_parts) < 3:
@@ -225,9 +225,8 @@ def parse_and_filter_codeguru_results(
                 },
             }
 
-            if (
-                check_min_severity(vul_sample["misc"]["severity"], min_severity_level)
-                == False
+            if not check_min_severity(
+                vul_sample["misc"]["severity"], min_severity_level
             ):
                 continue
 
