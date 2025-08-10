@@ -137,10 +137,7 @@ Notes:
 --- END OF EXAMPLE ---"""
 
 
-def _create_client(remote_api=False):
-    if remote_api:
-        load_dotenv()
-        return None, "bedrock/converse/us.deepseek.r1-v1:0"
+def _create_client():
     return (
         OpenAI(api_key="none", base_url="http://localhost:30000/v1"),
         "default",
@@ -152,9 +149,8 @@ def datagen_for_one_seed(
     output_file,
     finished_pairs,
     depth=1,
-    remote_api=False,
 ):
-    client, model = _create_client(remote_api=remote_api)
+    client, model = _create_client()
     common_args = {
         "model": model,
         "temperature": 0.8,
@@ -173,13 +169,7 @@ def datagen_for_one_seed(
     ]
 
     for i in range(depth):
-        if remote_api:
-            response = batch_completion(
-                model=model,
-                messages=[messages],
-            )[0]
-        else:
-            response = client.chat.completions.create(messages=messages, **common_args)
+        response = client.chat.completions.create(messages=messages, **common_args)
 
         if response.choices[0].finish_reason == "length":
             break
@@ -213,7 +203,6 @@ def main(
     parallel=256,
     output_path="outputs/rule2code/guru2code.jsonl",
     depth=1,
-    remote_api=False,
 ):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -239,7 +228,6 @@ def main(
                         output_path,
                         finished_pairs,
                         depth,
-                        remote_api,
                     )
                 )
 
