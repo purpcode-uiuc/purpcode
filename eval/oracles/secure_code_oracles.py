@@ -9,6 +9,7 @@ import shutil
 import sys
 import tempfile
 import time
+import traceback
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Dict, List, Literal, Optional, Tuple
@@ -140,6 +141,7 @@ def process_batch(
             rich.print(
                 f"[red] Batch {batch_index} ({analyzer}) failed attempt {attempt + 1}/{max_retries}. Error: {e}. Retrying..."
             )
+            rich.print(traceback.format_exc())
             if attempt == max_retries - 1:
                 rich.print(
                     f"[bold red]Batch {batch_index} ({analyzer}) failed permanently after {max_retries} attempts. Error: {e}[/bold red]",
