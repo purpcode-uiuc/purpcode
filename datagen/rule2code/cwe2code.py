@@ -219,17 +219,17 @@ Explain why this code is vulnerable.
 """
 
 
-def _create_client(remote_api=False):
-    if remote_api:
-        return OpenAI(base_url="https://api.deepseek.com"), "deepseek-reasoner"
-    # Otherwise sglang
-    return OpenAI(api_key="none", base_url="http://0.0.0.0:30000/v1"), "default"
+def _create_client():
+    return (
+        OpenAI(api_key="none", base_url="http://localhost:30000/v1"),
+        "default",
+    )
 
 
-def datagen_for_one_cwe(cwe_id, markdown, depth, remote_api=False):
+def datagen_for_one_cwe(cwe_id, markdown, depth):
     assert depth > 0
 
-    client, model = _create_client(remote_api=remote_api)
+    client, model = _create_client()
     common_args = {"model": model, "temperature": 0.6}
 
     rprint(f"[bold yellow]Processing: CWE ID: {cwe_id}[/bold yellow]")
@@ -277,10 +277,10 @@ def main(
     parallel=256,
     output_path="outputs/rule2code/cwe2code.jsonl",
     depth=1,
-    remote_api=False,
 ):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     collection = create_cwe_information()
-    # each line: cwe_id, conversation
 
     finished = set()
     if os.path.exists(output_path):
@@ -295,7 +295,7 @@ def main(
                 continue
             futures.append(
                 executor.submit(
-                    datagen_for_one_cwe, cwe_id, markdown, depth, remote_api
+                    datagen_for_one_cwe, cwe_id, markdown, depth
                 )
             )
 
