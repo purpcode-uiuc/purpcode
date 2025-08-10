@@ -279,7 +279,7 @@ def main(
     depth=1,
 ):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     collection = create_cwe_information()
 
     finished = set()
@@ -294,9 +294,7 @@ def main(
             if cwe_id in finished:
                 continue
             futures.append(
-                executor.submit(
-                    datagen_for_one_cwe, cwe_id, markdown, depth
-                )
+                executor.submit(datagen_for_one_cwe, cwe_id, markdown, depth)
             )
 
         for future in tqdm(as_completed(futures), total=len(futures)):
