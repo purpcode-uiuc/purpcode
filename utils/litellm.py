@@ -68,7 +68,7 @@ def is_o_series_model(model: str) -> bool:
 
 
 def run_batched_inference(
-    batched_rows: List,  # each row includes at least "messages"
+    batched_rows: List,
     row_transform: Callable[[Dict], Dict] = lambda x: x,
     max_new_tokens: int = None,
     temperature: float = None,
@@ -80,10 +80,33 @@ def run_batched_inference(
     batched_rows = [row_transform(row) for row in batched_rows]
     print("Running batched completion for LLM judge")
 
-    if model.startswith("openai/"):
-        kwargs.update(configure_openai_api(model))
-    elif model.startswith("bedrock/"):
-        load_dotenv()
+    if model.startswith("openai/") or model.startswith("bedrock/"):
+        if model.startswith("openai/"):
+            kwargs.update(configure_openai_api(model))
+        elif model.startswith("bedrock/"):
+            load_dotenv()
+
+        parameters = {
+            "model": model,
+            "parallel": parallel,
+            "messages": batched_rows,
+            "max_tokens": max_new_tokens,
+            "temperature": temperature,
+            **kwargs,
+        }
+        if "thinking" in kwargs:
+            assert parameters["max_tokens"] is None
+            assert parameters["temperature"] is None
+        else:
+            if is_o_series_model(model):
+                if "temperature" in parameters:
+                    del parameters["temperature"]
+            elif parameters["temperature"] is None:
+                parameters["temperature"] = 0.0
+
+        outputs = mini_batch_completion(**parameters)
+        log_costs(outputs)
+        outputs = [item.choices[0].message for item in outputs]
     else:
         model = LLM(
             model=model,
@@ -99,47 +122,10 @@ def run_batched_inference(
         sampling_params.skip_special_tokens = True
 
         prompts = [row["messages"] for row in batched_rows]
-        vllm_outputs = model.chat(prompts, sampling_params, use_tqdm=True)
-
-        outputs = [SimpleNamespace(content=o.outputs[0].text) for o in vllm_outputs]
-
-        output_rows = []
-        for row, ext in zip(batched_rows, outputs):
-            row = deepcopy(row)
-            reasoning_content = (
-                "<think>\n" + ext.reasoning_content + "\n</think>\n"
-                if hasattr(ext, "reasoning_content")
-                and ext.reasoning_content
-                or "thinking" in kwargs
-                else ""
-            )
-            row["messages"].append(
-                {"role": "assistant", "content": reasoning_content + ext.content}
-            )
-            output_rows.append(row)
-        return output_rows
-
-    parameters = {
-        "model": model,
-        "parallel": parallel,
-        "messages": batched_rows,
-        "max_tokens": max_new_tokens,
-        "temperature": temperature,
-        **kwargs,
-    }
-    if "thinking" in kwargs:
-        assert parameters["max_tokens"] is None
-        assert parameters["temperature"] is None
-    else:
-        if is_o_series_model(model):
-            if "temperature" in parameters:
-                del parameters["temperature"]
-        elif parameters["temperature"] is None:
-            parameters["temperature"] = 0.0
-
-    outputs = mini_batch_completion(**parameters)
-    log_costs(outputs)
-    outputs = [item.choices[0].message for item in outputs]
+        outputs = [
+            SimpleNamespace(content=o.outputs[0].text)
+            for o in model.chat(prompts, sampling_params, use_tqdm=True)
+        ]
 
     output_rows = []
     for row, ext in zip(batched_rows, outputs):
