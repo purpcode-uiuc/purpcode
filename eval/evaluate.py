@@ -9,8 +9,7 @@ from evalplus.sanitize import sanitize
 
 from eval.generate import preprocess_generation
 
-# TODO(@zhewang2001): allow users to play LLM judge based on vLLM, instead of relying on bedrock
-DEFAULT_LLM_JUDGE = "bedrock/us.meta.llama3-3-70b-instruct-v1:0"
+DEFAULT_LLM_JUDGE = "openai/gpt-4o"
 
 
 def to_evalplus_format(generation_path: str) -> str:
