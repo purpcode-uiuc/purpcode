@@ -189,9 +189,50 @@ python eval/main.py --task "purpcode/PHTest"             --model purpcode/purpco
 ```
 
 Notes:
-* `--oracle` for evaluating customized generation (default guessing from dataset).
+* `--oracle` for evaluating customized generation (default: guessing from dataset).
+* `--backend` for choosing inference backend (default: `vllm`; options: `hf`, `openai`, `bedrock`).
+* `--llm_judge` for specifying the LLM judge model (default: `meta-llama/Llama-3.3-70B-Instruct` via `vllm`; options: `openai`, `bedrock`).
 
-<details><summary><b>CyberSecEval SCG Evaluation Setup</b> <i>:: click to expand ::</i></summary>
+<details><summary><b>OpenAI Backend Setup</b> <i>:: click to expand ::</i></summary>
+<div>
+
+To use OpenAI backend for running OpenAI models:
+
+```bash
+export OPENAI_API_KEY="your-openai-api-key"
+export OPENAI_API_BASE="https://api.openai.com/v1"
+
+# Running official OpenAI models
+python eval/main.py --task "purpcode/CyberSecEval-FRR" \
+                    --model "openai/gpt-4o" \
+                    --backend openai
+
+# Using OpenAI models as LLM judge
+python eval/main.py --task "purpcode/CyberSecEval-FRR" \
+                    --model purpcode/purpcode-14b-rl \
+                    --llm_judge "openai/gpt-4o"
+```
+
+To use OpenAI backend with OpenAI-compatible servers (e.g., sglang) for running models:
+
+```bash
+# --- TMUX SESSION "sgl" ---
+tmux at -t sgl || tmux new -s sgl
+conda activate sgl
+python3 -m sglang_router.launch_server --model Qwen/Qwen2.5-14B-Instruct-1M --dp-size 8 --port 8000 --host 0.0.0.0 & tmux detach
+# --------------------------
+
+# Running models through OpenAI-compatible servers (e.g., sglang)
+# Note: Add "openai/" prefix when using OpenAI backend for non-OpenAI models
+python eval/main.py --task "purpcode/CyberSecEval-FRR" \
+                    --model "openai/Qwen/Qwen2.5-14B-Instruct-1M" \
+                    --backend openai
+```
+
+</div>
+</details>
+
+<details><summary><b>CyberSecEval-SCG Evaluation Setup</b> <i>:: click to expand ::</i></summary>
 <div>
 
 ```bash
