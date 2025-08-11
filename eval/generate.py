@@ -178,6 +178,11 @@ def generate_openai(
     temperature: float = 0.0,
     max_new_tokens: int = 8192,
 ):
+    assert model.startswith("openai/"), (
+        "If running openai backend, model name must start with 'openai/'. "
+        "For example, 'deepseek-ai/DeepSeek-R1' should be 'openai/deepseek-ai/DeepSeek-R1'"
+    )
+
     outputs = []
     with ThreadPoolExecutor(max_workers=len(messages_batch)) as executor:
         futures = []
@@ -187,15 +192,29 @@ def generate_openai(
                 "num_retries": 16,
                 "retry_strategy": "exponential_backoff_retry",
                 "max_tokens": max_new_tokens,
-                "model": f"openai/{model}",
-                "api_key": os.getenv("OPENAI_API_KEY", "none"),
-                "api_base": os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1"),
+                "model": model,
+                "api_key": (
+                    os.getenv("OPENAI_API_KEY", "none")
+                    if model.count("/") == 1
+                    else "none"
+                ),
+                "api_base": (
+                    os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1")
+                    if model.count("/") == 1
+                    else "http://0.0.0.0:8000/v1"
+                ),
+                "temperature": temperature,
+                "stop": ["<end_of_turn>"],
             }
 
-            if model != "o4-mini":
+            if (
+                model.startswith("openai/o1-")
+                or model.startswith("openai/o3-")
+                or model.startswith("openai/o4-")
+            ):
                 # O-series models don't support customized temperature. Only default temperature=1 is supported.
-                kwargs["temperature"] = temperature
-                kwargs["stop"] = ["<end_of_turn>"]
+                del kwargs["temperature"]
+                del kwargs["stop"]
 
             future = executor.submit(completion_with_retries, **kwargs)
             futures.append(future)
