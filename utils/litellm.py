@@ -8,6 +8,7 @@ from copy import deepcopy
 from types import SimpleNamespace
 from typing import Callable, Dict, List
 
+import torch
 from dotenv import load_dotenv
 from litellm import completion_with_retries
 from termcolor import cprint
@@ -112,7 +113,9 @@ def run_batched_inference(
             model=model,
             generation_config="auto",
             trust_remote_code=True,
-            tensor_parallel_size=8,
+            tensor_parallel_size=(
+                torch.cuda.device_count() if torch.cuda.is_available() else 1
+            ),
         )
         sampling_params = model.get_default_sampling_params()
         sampling_params.temperature = temperature if temperature is not None else 0.0
