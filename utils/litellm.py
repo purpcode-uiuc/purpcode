@@ -5,12 +5,14 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
+from types import SimpleNamespace
 from typing import Callable, Dict, List
 
 from dotenv import load_dotenv
 from litellm import completion_with_retries
 from termcolor import cprint
 from tqdm import tqdm
+from vllm import LLM
 
 from utils import split_batch
 
@@ -78,10 +80,44 @@ def run_batched_inference(
     batched_rows = [row_transform(row) for row in batched_rows]
     print("Running batched completion for LLM judge")
 
-    if model.startswith("openai"):
+    if model.startswith("openai/"):
         kwargs.update(configure_openai_api(model))
-    elif model.startswith("bedrock"):
+    elif model.startswith("bedrock/"):
         load_dotenv()
+    else:
+        model = LLM(
+            model=model,
+            generation_config="auto",
+            trust_remote_code=True,
+            tensor_parallel_size=8,
+        )
+        sampling_params = model.get_default_sampling_params()
+        sampling_params.temperature = temperature if temperature is not None else 0.0
+        sampling_params.max_tokens = (
+            max_new_tokens if max_new_tokens is not None else 2048
+        )
+        sampling_params.skip_special_tokens = True
+
+        prompts = [row["messages"] for row in batched_rows]
+        vllm_outputs = model.chat(prompts, sampling_params, use_tqdm=True)
+
+        outputs = [SimpleNamespace(content=o.outputs[0].text) for o in vllm_outputs]
+
+        output_rows = []
+        for row, ext in zip(batched_rows, outputs):
+            row = deepcopy(row)
+            reasoning_content = (
+                "<think>\n" + ext.reasoning_content + "\n</think>\n"
+                if hasattr(ext, "reasoning_content")
+                and ext.reasoning_content
+                or "thinking" in kwargs
+                else ""
+            )
+            row["messages"].append(
+                {"role": "assistant", "content": reasoning_content + ext.content}
+            )
+            output_rows.append(row)
+        return output_rows
 
     parameters = {
         "model": model,

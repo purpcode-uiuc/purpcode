@@ -9,7 +9,7 @@ from evalplus.sanitize import sanitize
 
 from eval.generate import preprocess_generation
 
-DEFAULT_LLM_JUDGE = "openai/gpt-4o"
+DEFAULT_LLM_JUDGE = "meta-llama/Llama-3.3-70B-Instruct"
 
 
 def to_evalplus_format(generation_path: str) -> str:
