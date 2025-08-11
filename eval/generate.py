@@ -19,6 +19,7 @@ from transformers import (
 )
 
 from utils import SYSTEM_PROMPT, split_batch
+from utils.litellm import configure_openai_api, is_o_series_model
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -193,26 +194,12 @@ def generate_openai(
                 "retry_strategy": "exponential_backoff_retry",
                 "max_tokens": max_new_tokens,
                 "model": model,
-                "api_key": (
-                    os.getenv("OPENAI_API_KEY", "none")
-                    if model.count("/") == 1
-                    else "none"
-                ),
-                "api_base": (
-                    os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1")
-                    if model.count("/") == 1
-                    else "http://0.0.0.0:8000/v1"
-                ),
                 "temperature": temperature,
                 "stop": ["<end_of_turn>"],
+                **configure_openai_api(model),
             }
 
-            if (
-                model.startswith("openai/o1-")
-                or model.startswith("openai/o3-")
-                or model.startswith("openai/o4-")
-            ):
-                # O-series models don't support customized temperature. Only default temperature=1 is supported.
+            if is_o_series_model(model):
                 del kwargs["temperature"]
                 del kwargs["stop"]
 

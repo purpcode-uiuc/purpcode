@@ -44,6 +44,27 @@ def mini_batch_completion(messages, parallel: int = 32, **kwargs):
     return outputs
 
 
+def configure_openai_api(model: str) -> dict:
+    return {
+        "api_key": (
+            os.getenv("OPENAI_API_KEY", "none") if model.count("/") == 1 else "none"
+        ),
+        "api_base": (
+            os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1")
+            if model.count("/") == 1
+            else "http://0.0.0.0:8000/v1"
+        ),
+    }
+
+
+def is_o_series_model(model: str) -> bool:
+    return (
+        model.startswith("openai/o1-")
+        or model.startswith("openai/o3-")
+        or model.startswith("openai/o4-")
+    )
+
+
 def run_batched_inference(
     batched_rows: List,  # each row includes at least "messages"
     row_transform: Callable[[Dict], Dict] = lambda x: x,
@@ -58,14 +79,7 @@ def run_batched_inference(
     print("Running batched completion for LLM judge")
 
     if model.startswith("openai"):
-        kwargs["api_key"] = (
-            os.getenv("OPENAI_API_KEY", "none") if model.count("/") == 1 else "none"
-        )
-        kwargs["api_base"] = (
-            os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1")
-            if model.count("/") == 1
-            else "http://0.0.0.0:8000/v1"
-        )
+        kwargs.update(configure_openai_api(model))
     elif model.startswith("bedrock"):
         load_dotenv()
 
@@ -81,11 +95,7 @@ def run_batched_inference(
         assert parameters["max_tokens"] is None
         assert parameters["temperature"] is None
     else:
-        if (
-            model.startswith("openai/o1-")
-            or model.startswith("openai/o3-")
-            or model.startswith("openai/o4-")
-        ):
+        if is_o_series_model(model):
             if "temperature" in parameters:
                 del parameters["temperature"]
         elif parameters["temperature"] is None:
