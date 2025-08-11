@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import os
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from typing import Callable, Dict, List
@@ -12,8 +13,6 @@ from termcolor import cprint
 from tqdm import tqdm
 
 from utils import split_batch
-
-load_dotenv()
 
 
 def log_costs(completions):
@@ -57,6 +56,19 @@ def run_batched_inference(
     assert batched_rows and "messages" in batched_rows[0]
     batched_rows = [row_transform(row) for row in batched_rows]
     print("Running batched completion for LLM judge")
+
+    if model.startswith("openai"):
+        kwargs["api_key"] = (
+            os.getenv("OPENAI_API_KEY", "none") if model.count("/") == 1 else "none"
+        )
+        kwargs["api_base"] = (
+            os.getenv("OPENAI_API_BASE", "http://0.0.0.0:8000/v1")
+            if model.count("/") == 1
+            else "http://0.0.0.0:8000/v1"
+        )
+    elif model.startswith("bedrock"):
+        load_dotenv()
+
     parameters = {
         "model": model,
         "parallel": parallel,
@@ -69,7 +81,14 @@ def run_batched_inference(
         assert parameters["max_tokens"] is None
         assert parameters["temperature"] is None
     else:
-        if parameters["temperature"] is None:
+        if (
+            model.startswith("openai/o1-")
+            or model.startswith("openai/o3-")
+            or model.startswith("openai/o4-")
+        ):
+            if "temperature" in parameters:
+                del parameters["temperature"]
+        elif parameters["temperature"] is None:
             parameters["temperature"] = 0.0
 
     outputs = mini_batch_completion(**parameters)
