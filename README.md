@@ -94,7 +94,7 @@ conda create -n purp python=3.12 -y
 conda activate purp
 pip install -r requirements.txt
 # Sampling
-python datagen/ctxdistill/distill_main.py --model openai/Qwen/Qwen2.5-14B-Instruct-1M --sample-per-prompt 8 --concurrency 400
+python datagen/ctxdistill/main.py --model openai/Qwen/Qwen2.5-14B-Instruct-1M --sample-per-prompt 8 --concurrency 400
 tmux detach
 # ---------------------------
 
