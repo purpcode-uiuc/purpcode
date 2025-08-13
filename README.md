@@ -92,6 +92,7 @@ tmux at -t main || tmux new -s main
 # NOTE: context distillation (https://arxiv.org/abs/2209.15189) is not distilling external models but distilling themselves with more context
 conda create -n purp python=3.12 -y
 conda activate purp
+export PYTHONPATH=$PYTHONPATH:$(pwd)
 pip install -r requirements.txt
 # Sampling
 python datagen/ctxdistill/main.py --model openai/Qwen/Qwen2.5-14B-Instruct-1M --sample-per-prompt 8 --concurrency 400
